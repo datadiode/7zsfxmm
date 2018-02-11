@@ -1,0 +1,68 @@
+<style>
+body
+{
+	margin: 5;
+	overflow: hidden;
+	font: 15 sans-serif;
+}
+ul
+{
+	margin: 0 0 0 20;
+}
+h4, h5
+{
+	margin: 5 0 5 0;
+}
+button
+{
+	width: 5em;
+	margin-left: 5;
+}
+#buttons
+{
+	position: absolute;
+	text-align: right;
+	margin: 5;
+	right: 0;
+	bottom: 0;
+}
+</style>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=ISO-8859-1'/>
+<meta http-equiv='MSThemeCompatible' content='yes'>
+<title>HTDialog v1.0</title>
+</head>
+<body>
+<h4>Usage:</h4>
+htdialog.exe [options] &lt;filename&gt; [arguments]
+<p>
+<h4>Available options:</h4>
+<ul id='options'>
+<li>/hidden
+<br>Hides the associated dialog window
+<h5></h5>
+<li>/features:&quot;&lt;semicolon-delimited list of values&gt;&quot;
+<br>Controls various aspects of the associated dialog window
+<h5>Possible values:</h5>
+<ul>
+<li>dialogLeft: &lt;number&gt; { cm | mm | in | pt | pc | em | ex | px }
+<li>dialogTop: &lt;number&gt; { cm | mm | in | pt | pc | em | ex | px }
+<li>dialogWidth: &lt;number&gt; { cm | mm | in | pt | pc | em | ex | px }
+<li>dialogHeight: &lt;number&gt; { cm | mm | in | pt | pc | em | ex | px }
+<li>center: { yes | no | 1 | 0 | on | off }
+<li>edge: { sunken | raised }
+<li>resizable: { yes | no | 1 | 0 | on | off }
+<li>scroll: { yes | no | 1 | 0 | on | off }
+<li>status: { yes | no | 1 | 0 | on | off }
+<li>unadorned: { yes | no | 1 | 0 | on | off }
+</ul>
+<h5>See also:</h5>
+<ul>
+<li><a target='_blank' href="https://msdn.microsoft.com/library/ms536759.aspx">https://msdn.microsoft.com/library/ms536759.aspx</a>
+</ul>
+</ul>
+<div id='buttons'>
+<hr>
+<button onclick='javascript:window.close()'>Close</button>
+</div>
+</body>
