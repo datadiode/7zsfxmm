@@ -1,0 +1,51 @@
+// WinMerge.idl : IDL source for ShellExtension.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (WinMerge.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(5406B409-EDAA-450F-9FC8-867648C453CC),
+	dual,
+	helpstring("I7zSfxHtmHost Interface"),
+	pointer_default(unique)
+]
+interface I7zSfxHtmHost : IDispatch
+{
+	[id(1), propget]
+	HRESULT Path([out, retval] BSTR *pbsPath);
+	[id(2), propget]
+	HRESULT Hwnd([out, retval] LONG *plHwnd);
+	[id(3), propget]
+	HRESULT ExitCode([out, retval] LONG *plExitCode);
+	[id(4), propget]
+	HRESULT Progress([out, retval] DOUBLE *pdProgress);
+	[id(5)]
+	HRESULT ExtractPayload([in] BSTR bsPath);
+	[id(6)]
+	HRESULT ExtractAdjunct([in] BSTR bsPath, [in, optional] BSTR bsFilter, [in, optional] BSTR bsType);
+	[id(7), propput]
+	HRESULT OverwriteMode([in] LONG lOverwriteMode);
+	[id(7), propget]
+	HRESULT OverwriteMode([out, retval] LONG *plOverwriteMode);
+	[id(8), propput]
+	HRESULT WindowState([in] LONG lWindowState);
+	[id(9), propget]
+	HRESULT VersionString([in] BSTR bsKey, [out, retval] BSTR *pbsValue);
+	[id(10), propput]
+	HRESULT Password([in] BSTR bsPassword);
+};
+
+[
+	uuid(E84250D4-FB33-4F68-BF9C-5F95C65FAF42),
+	version(1.0),
+	helpstring("7zSfxHtm Type Library")
+]
+library L7zSfxHtm
+{
+	interface I7zSfxHtmHost;
+};

@@ -2,8 +2,15 @@
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 
-1 RT_MANIFEST manifest.xml
+#ifdef _WIN64
+1 TYPELIB "../Intermediate/Win64/HTDialog/HTDialog.tlb"
+#else
+1 TYPELIB "../Intermediate/Win32/HTDialog/HTDialog.tlb"
+#endif
+
 1 HTML usage.html
+
+1 RT_MANIFEST manifest.xml
 
 //
 // Version Information resources

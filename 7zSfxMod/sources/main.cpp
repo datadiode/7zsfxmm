@@ -37,8 +37,8 @@
 #include "ExtractEngine.h"
 #include "archive.h"
 #include "../C/Lzma86.h"
-#include "VersionData.h"
-#include "vs_version.h"
+#include "../common/VersionData.h"
+#include "../common/vs_version.h"
 
 using NWindows::NFile::NIO::CInFile;
 using NWindows::NFile::NIO::COutFile;

@@ -3,7 +3,7 @@ body
 {
 	margin: 5;
 	overflow: hidden;
-	font: 15 sans-serif;
+	font: 13 verdana;
 }
 ul
 {
@@ -15,7 +15,8 @@ h4, h5
 }
 button
 {
-	width: 5em;
+	height: 25;
+	width: 60;
 	margin-left: 5;
 }
 #buttons
@@ -27,19 +28,26 @@ button
 	bottom: 0;
 }
 </style>
+<script id='script' type='text/vbs'>
+Option Explicit
+script.addBehavior "#HTDialog#Host?dialogWidth:500px;dialogHeight:500px;", dialogArguments
+</script>
 <head>
-<meta http-equiv='Content-Type' content='text/html; charset=ISO-8859-1'/>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
 <meta http-equiv='MSThemeCompatible' content='yes'>
-<title>HTDialog v1.0</title>
+<title>HTDialog v1.1</title>
 </head>
 <body>
 <h4>Usage:</h4>
-htdialog.exe [options] &lt;filename&gt; [arguments]
+HTDialog.exe [options] &lt;filename&gt; [arguments]
 <p>
 <h4>Available options:</h4>
 <ul id='options'>
 <li>/hidden
 <br>Hides the associated dialog window
+<h5></h5>
+<li>/zoom:&lt;percentage&gt;
+<br>Scales the associated dialog window accordingly
 <h5></h5>
 <li>/features:&quot;&lt;semicolon-delimited list of values&gt;&quot;
 <br>Controls various aspects of the associated dialog window

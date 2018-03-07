@@ -197,24 +197,19 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='SfxTools|Win32'">..\Intermediate\Win32\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='SfxTools|x64'">..\Output\Win64\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='SfxTools|x64'">..\Intermediate\Win64\$(ProjectName)\$(Configuration)\</IntDir>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='SfxTools|x64'">true</GenerateManifest>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='LZMA2|Win32'">..\Output\Win32\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='LZMA2|Win32'">..\Intermediate\Win32\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='LZMA2|x64'">..\Output\Win64\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='LZMA2|x64'">..\Intermediate\Win64\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='LZMA|Win32'">..\Output\Win32\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='LZMA|Win32'">..\Intermediate\Win32\$(ProjectName)\$(Configuration)\</IntDir>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='LZMA|Win32'">true</GenerateManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='LZMA|Win32'">true</EmbedManifest>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='LZMA|x64'">..\Output\Win64\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='LZMA|x64'">..\Intermediate\Win64\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\Output\Win32\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\Intermediate\Win32\$(ProjectName)\$(Configuration)\</IntDir>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\Output\Win64\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\Intermediate\Win64\$(ProjectName)\$(Configuration)\</IntDir>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
-    <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</EmbedManifest>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Deflate|Win32'">..\Output\Win32\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Deflate|Win32'">..\Intermediate\Win32\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Deflate|x64'">..\Output\Win64\</OutDir>
@@ -268,7 +263,7 @@
       <Culture>0x0419</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/STUB:sources/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)7zsd_$(Configuration).exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -282,10 +277,10 @@
       <ProgramDatabaseFile>$(OutDir)7zsd_$(Configuration).pdb</ProgramDatabaseFile>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest32.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='All|x64'">
@@ -319,7 +314,7 @@
       <Culture>0x0419</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/STUB:sources/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)7zsd_$(Configuration)_x64.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -333,10 +328,10 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest64.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
     <MASM>
       <AdditionalOptions>/Dx64 %(AdditionalOptions)</AdditionalOptions>
@@ -372,7 +367,7 @@
       <Culture>0x0419</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/STUB:sources/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)7zsd_$(Configuration).exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -387,10 +382,10 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest32.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='SfxTools|x64'">
@@ -425,7 +420,7 @@
       <Culture>0x0419</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/STUB:sources/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)7zsd_$(Configuration)_x64.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -440,10 +435,10 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest64.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
     <MASM>
       <AdditionalOptions>/Dx64 %(AdditionalOptions)</AdditionalOptions>
@@ -479,7 +474,7 @@
       <Culture>0x0419</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/STUB:sources/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)7zsd_$(Configuration).exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -494,10 +489,10 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest32.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LZMA2|x64'">
@@ -531,7 +526,7 @@
       <Culture>0x0419</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/STUB:sources/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)7zsd_$(Configuration)_x64.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -546,10 +541,10 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest64.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
     <MASM>
       <AdditionalOptions>/Dx64 %(AdditionalOptions)</AdditionalOptions>
@@ -585,7 +580,7 @@
       <Culture>0x0419</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/STUB:sources/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)7zsd_$(Configuration).exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -600,10 +595,10 @@
       <ProgramDatabaseFile>$(OutDir)7zsd_$(Configuration).pdb</ProgramDatabaseFile>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest32.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LZMA|x64'">
@@ -637,7 +632,7 @@
       <Culture>0x0419</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/STUB:sources/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)7zsd_$(Configuration)_x64.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -652,10 +647,10 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest64.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
     <MASM>
       <AdditionalOptions>/Dx64 %(AdditionalOptions)</AdditionalOptions>
@@ -706,12 +701,13 @@
       <ProgramDatabaseFile>$(OutDir)7zsd_$(Configuration).pdb</ProgramDatabaseFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest32.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -759,13 +755,17 @@
       <ProgramDatabaseFile>$(OutDir)7zsd_$(Configuration)_x64.pdb</ProgramDatabaseFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
     <MASM>
       <AdditionalOptions>/Dx64 %(AdditionalOptions)</AdditionalOptions>
     </MASM>
+    <Manifest>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Deflate|Win32'">
     <Midl>
@@ -797,7 +797,7 @@
       <Culture>0x0419</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/STUB:sources/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <SubSystem>Windows</SubSystem>
@@ -809,10 +809,10 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest32.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Deflate|x64'">
@@ -845,7 +845,7 @@
       <Culture>0x0419</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/STUB:sources/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)7zsd_$(Configuration)_x64.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -860,10 +860,10 @@
       <FixedBaseAddress>true</FixedBaseAddress>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest64.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
     <MASM>
       <AdditionalOptions>/Dx64 %(AdditionalOptions)</AdditionalOptions>
@@ -899,7 +899,7 @@
       <Culture>0x0419</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/STUB:sources/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)7zsd_$(Configuration).exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -914,10 +914,10 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest32.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PPMd|x64'">
@@ -951,7 +951,7 @@
       <Culture>0x0419</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/STUB:sources/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)7zsd_$(Configuration)_x64.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -966,10 +966,10 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>sources\res\manifest64.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>sources\res\manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
+      <Command>sources\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformName) $(Configuration)</Command>
     </PostBuildEvent>
     <MASM>
       <AdditionalOptions>/Dx64 %(AdditionalOptions)</AdditionalOptions>
@@ -2334,7 +2334,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='SfxTools|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="..\7-Zip\CPP\Common\Wildcard.cpp" />
-    <ClCompile Include="sources\vs_version.cpp" />
+    <ClCompile Include="common\vs_version.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\7-Zip\CPP\7zip\Common\CWrappers.h" />
@@ -2372,51 +2372,36 @@
     <ClInclude Include="sources\stdafx.h" />
     <ClInclude Include="sources\strings.h" />
     <ClInclude Include="sources\version.h" />
-    <ClInclude Include="sources\VersionData.h" />
-    <ClInclude Include="sources\vs_version.h" />
+    <ClInclude Include="common\VersionData.h" />
+    <ClInclude Include="common\vs_version.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="sources\res\7zsfx.ico" />
     <None Include="sources\res\7zSfxMod.rc2" />
     <None Include="sources\res\banner_en.gif" />
     <None Include="sources\res\banner_ru.gif" />
-    <None Include="sources\res\manifest32.xml" />
-    <None Include="sources\res\manifest64.xml" />
     <None Include="changes_draft.txt" />
     <None Include="changes_ru.txt" />
     <None Include="makefile" />
     <None Include="Requests.txt" />
     <None Include="SfxBuild.txt" />
+    <None Include="sources\res\manifest.xml" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="sources\7zSfxMod.rc">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='All|Win32'">_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='All|Win32'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='All|x64'">_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='All|x64'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Deflate|Win32'">_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Deflate|Win32'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Deflate|x64'">_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Deflate|x64'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LZMA2|Win32'">_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='LZMA2|Win32'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LZMA2|x64'">_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='LZMA2|x64'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LZMA|Win32'">_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='LZMA|Win32'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LZMA|x64'">_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='LZMA|x64'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='PPMd|Win32'">_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='PPMd|Win32'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='PPMd|x64'">_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='PPMd|x64'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='SfxTools|Win32'">_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='SfxTools|Win32'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='SfxTools|x64'">_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='SfxTools|x64'">sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemGroup>

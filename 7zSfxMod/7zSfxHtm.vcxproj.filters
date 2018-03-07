@@ -54,30 +54,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="sources\ExtractEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\Helpers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\langstrs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\SfxDialogs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\SfxInStream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\SfxTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\7-Zip\C\7zCrc.c">
       <Filter>7z</Filter>
     </ClCompile>
@@ -153,15 +129,6 @@
     <ClCompile Include="..\7-Zip\CPP\7zip\Common\VirtThread.cpp">
       <Filter>7z</Filter>
     </ClCompile>
-    <ClCompile Include="sources\archive.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\cmdline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\execute.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\7-Zip\C\Threads.c">
       <Filter>7z</Filter>
     </ClCompile>
@@ -197,9 +164,6 @@
     </ClCompile>
     <ClCompile Include="..\7-Zip\C\Ppmd7Dec.c">
       <Filter>7z\Methods\Ppmd</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\config.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\7-Zip\CPP\7zip\Compress\CopyCoder.cpp">
       <Filter>7z\Methods\Copy</Filter>
@@ -240,9 +204,6 @@
     <ClCompile Include="..\7-Zip\CPP\Common\Wildcard.cpp">
       <Filter>7z</Filter>
     </ClCompile>
-    <ClCompile Include="common\vs_version.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\7-Zip\C\Aes.c">
       <Filter>7z</Filter>
     </ClCompile>
@@ -255,41 +216,41 @@
     <ClCompile Include="..\7-Zip\C\Delta.c">
       <Filter>7z\Methods\Delta</Filter>
     </ClCompile>
+    <ClCompile Include="..\7-Zip\CPP\7zip\Archive\Common\MultiStream.cpp">
+      <Filter>7z</Filter>
+    </ClCompile>
+    <ClCompile Include="7zSfxHtm\archive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="7zSfxHtm\config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="7zSfxHtm\ExtractEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="7zSfxHtm\Helpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="7zSfxHtm\langstrs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="7zSfxHtm\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="7zSfxHtm\SfxInStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="7zSfxHtm\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="common\vs_version.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="common\ImageUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="sources\7zSfxMod.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\7zSfxModInt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\ExtractEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\langstrs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\SfxDialogs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\archive.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\strings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\7-Zip\CPP\7zip\Compress\LzOutWindow.h">
       <Filter>7z\Methods\Deflate</Filter>
     </ClInclude>
@@ -353,12 +314,6 @@
     <ClInclude Include="..\7-Zip\C\LzFindMt.h">
       <Filter>7z\Methods\Lzma86</Filter>
     </ClInclude>
-    <ClInclude Include="common\vs_version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\VersionData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\7-Zip\C\Aes.h">
       <Filter>7z</Filter>
     </ClInclude>
@@ -368,32 +323,51 @@
     <ClInclude Include="..\7-Zip\C\Delta.h">
       <Filter>7z\Methods\Delta</Filter>
     </ClInclude>
+    <ClInclude Include="7zSfxHtm\7zSfxHtm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="7zSfxHtm\7zSfxHtmInt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="7zSfxHtm\archive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="7zSfxHtm\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="7zSfxHtm\ExtractEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="7zSfxHtm\langstrs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="7zSfxHtm\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="7zSfxHtm\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\VersionData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\vs_version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\ImageUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="sources\res\7zsfx.ico">
+    <None Include="7zSfxHtm\res\7zsfx.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="sources\res\7zSfxMod.rc2">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="sources\res\banner_en.gif">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="sources\res\banner_ru.gif">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="changes_draft.txt" />
-    <None Include="changes_ru.txt" />
-    <None Include="Requests.txt" />
-    <None Include="makefile" />
-    <None Include="SfxBuild.txt" />
-    <None Include="sources\res\manifest.xml">
+    <None Include="7zSfxHtm\res\DefaultExtractPrompt.html">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="sources\7zSfxMod.rc">
-      <Filter>Resource Files</Filter>
+    <ResourceCompile Include="7zSfxHtm\7zSfxHtm.rc">
+      <Filter>Source Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
@@ -408,5 +382,13 @@
     <MASM Include="..\7-Zip\Asm\x86\7zCrcOpt.asm">
       <Filter>7z</Filter>
     </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="7zSfxHtm\7zSfxHtm.idl">
+      <Filter>Source Files</Filter>
+    </Midl>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="7zSfxHtm\res\7zSfxHtm.manifest" />
   </ItemGroup>
 </Project>

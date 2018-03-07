@@ -1,0 +1,31 @@
+// HTDialog.idl : IDL source for HTDialog.exe
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (WinMerge.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(5B90EFEE-FFD5-40AE-BF8F-A622647CAB0E),
+	dual,
+	helpstring("IHTDialogHost Interface"),
+	pointer_default(unique)
+]
+interface IHTDialogHost : IDispatch
+{
+	[id(1), propget]
+	HRESULT Hwnd([out, retval] LONG *plHwnd);
+};
+
+[
+	uuid(6B54AC37-84C2-4061-A02C-F4952385F38F),
+	version(1.0),
+	helpstring("HTDialog Type Library")
+]
+library LHTDialog
+{
+	interface IHTDialogHost;
+};

@@ -39,14 +39,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <GenerateManifest>false</GenerateManifest>
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\Output\Win32\$(Configuration)\</OutDir>
-    <IntDir>..\Intermediate\Win32\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>..\Output\Win$(PlatformArchitecture)\$(Configuration)\</OutDir>
+    <IntDir>..\Intermediate\Win$(PlatformArchitecture)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <GenerateManifest>false</GenerateManifest>
-    <OutDir>..\Output\Win32\$(Configuration)\</OutDir>
-    <IntDir>..\Intermediate\Win32\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>..\Output\Win$(PlatformArchitecture)\$(Configuration)\</OutDir>
+    <IntDir>..\Intermediate\Win$(PlatformArchitecture)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

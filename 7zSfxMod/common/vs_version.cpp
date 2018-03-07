@@ -2,7 +2,7 @@
 // Code for VS_VERSION resource
 // Modified from MIT licensed code published at https://ddverpatch.codeplex.com/
 //
-#include "stdafx.h"
+#include <stdafx.h>
 #include "vs_version.h"
 
 // Stupid helper classes for the version struct

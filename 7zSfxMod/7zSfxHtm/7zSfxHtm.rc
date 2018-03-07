@@ -1,0 +1,52 @@
+#include <windows.h>
+#include "version.h"
+
+/////////////////////////////////////////////////////////////////////////////
+// Neutral resources
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(1251)
+
+1 ICON "res/7zsfx.ico"
+
+1 HTML "res/DefaultExtractPrompt.html"
+
+#ifdef _WIN64
+1 TYPELIB "../Intermediate/Win64/7zSfxHtm/7zSfxHtm.tlb"
+#else
+1 TYPELIB "../Intermediate/Win32/7zSfxHtm/7zSfxHtm.tlb"
+#endif
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION VERSION_7ZSFX_BIN
+ PRODUCTVERSION VERSION_7ZSFX_BIN
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x9L
+#else
+ FILEFLAGS 0x8L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "CompanyName", "Jochen Neubeck"
+            VALUE "FileDescription", "7z HTSFX (" PLATFORM_NAME_A ")"
+            VALUE "FileVersion", VERSION_7ZSFX_TXT
+            VALUE "InternalName", "7zSfxHtm"
+            VALUE "LegalCopyright", VERSION_SFX_LEGAL_COPYRIGHT
+            VALUE "OriginalFilename", "7zSfxHtm.exe"
+            VALUE "PrivateBuild", PRIVATEBUILD_EN
+            VALUE "ProductName", "7-Zip HTSFX"
+            VALUE "ProductVersion", VERSION_7ZSFX_TXT
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END

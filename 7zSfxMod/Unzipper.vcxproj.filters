@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="sources\miniz\main.cpp">
+    <ClCompile Include="unzipper\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sources\miniz\miniz.c">
+    <ClCompile Include="unzipper\miniz.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -28,7 +28,7 @@
     </Library>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="sources\miniz\miniz.h">
+    <ClInclude Include="unzipper\miniz.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

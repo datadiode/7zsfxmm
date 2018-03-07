@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7zSfxHtm", "7zSfxHtm.vcxproj", "{60FC2AAC-F2C7-48E6-A78D-ACDC6988B8C4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Unzipper", "Unzipper.vcxproj", "{179F6952-30D1-40A3-89A4-12F74838489B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HTDialog", "HTDialog.vcxproj", "{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60FC2AAC-F2C7-48E6-A78D-ACDC6988B8C4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{60FC2AAC-F2C7-48E6-A78D-ACDC6988B8C4}.Debug|Win32.Build.0 = Debug|Win32
+		{60FC2AAC-F2C7-48E6-A78D-ACDC6988B8C4}.Debug|x64.ActiveCfg = Debug|x64
+		{60FC2AAC-F2C7-48E6-A78D-ACDC6988B8C4}.Debug|x64.Build.0 = Debug|x64
+		{60FC2AAC-F2C7-48E6-A78D-ACDC6988B8C4}.Release|Win32.ActiveCfg = Release|Win32
+		{60FC2AAC-F2C7-48E6-A78D-ACDC6988B8C4}.Release|x64.ActiveCfg = Release|x64
+		{60FC2AAC-F2C7-48E6-A78D-ACDC6988B8C4}.Release|x64.Build.0 = Release|x64
+		{179F6952-30D1-40A3-89A4-12F74838489B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{179F6952-30D1-40A3-89A4-12F74838489B}.Debug|Win32.Build.0 = Debug|Win32
+		{179F6952-30D1-40A3-89A4-12F74838489B}.Debug|x64.ActiveCfg = Debug|Win32
+		{179F6952-30D1-40A3-89A4-12F74838489B}.Release|Win32.ActiveCfg = Release|Win32
+		{179F6952-30D1-40A3-89A4-12F74838489B}.Release|Win32.Build.0 = Release|Win32
+		{179F6952-30D1-40A3-89A4-12F74838489B}.Release|x64.ActiveCfg = Release|Win32
+		{179F6952-30D1-40A3-89A4-12F74838489B}.Release|x64.Build.0 = Release|Win32
+		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Debug|Win32.Build.0 = Debug|Win32
+		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Debug|x64.ActiveCfg = Debug|Win32
+		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Release|Win32.ActiveCfg = Release|Win32
+		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Release|Win32.Build.0 = Release|Win32
+		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Release|x64.ActiveCfg = Release|x64
+		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+EndGlobal

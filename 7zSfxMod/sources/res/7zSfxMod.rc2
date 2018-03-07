@@ -102,11 +102,7 @@ END
 #endif // APP_MANIFEST
 
 #ifndef _DEBUG
-	#ifdef _WIN64
-		APP_MANIFEST RT_MANIFEST res/manifest64.xml
-	#else
-		APP_MANIFEST RT_MANIFEST res/manifest32.xml
-	#endif  // _WIN64
+	APP_MANIFEST RT_MANIFEST res/manifest.xml
 #endif // _DEBUG
 
 #ifdef _SFXTOOLS

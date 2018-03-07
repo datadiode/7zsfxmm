@@ -1,0 +1,173 @@
+﻿<style>
+*
+{
+	font: 13px verdana;
+}
+body
+{
+	margin: 5px;
+	overflow: hidden;
+	background-color: buttonface;
+}
+input
+{
+	height: 25px;
+	vertical-align: middle;
+}
+button
+{
+	height: 25px;
+	width: 60px;
+	margin-left: 5px;
+}
+#progressbar
+{
+	background-color: buttonshadow;
+	border: 0 solid highlight;
+	overflow: hidden;
+	width: 100%;
+	height: 16px;
+}
+#progresstxt
+{
+	position: absolute;
+	color: highlighttext;
+	left: 5px;
+	width: 100%;
+	height: 16px;
+}
+#version
+{
+	position: absolute;
+	margin: 5px;
+	left: 0px;
+	bottom: 0px;
+}
+#buttons
+{
+	position: absolute;
+	text-align: right;
+	margin: 5px;
+	right: 0px;
+	bottom: 0px;
+}
+#EdFolder
+{
+	width: 100%;
+	margin-right: 65px;
+}
+#PbFolder
+{
+	position: absolute;
+	right: 5px;
+}
+</style>
+
+<script id='script' onerror='vbs:ErrorHandler' type='text/vbs'>
+Option Explicit
+
+script.addBehavior "#7zSfxHtm#Host?dialogHeight:150px;dialogWidth:600px;", dialogArguments
+
+Dim sh, sha
+
+Set sh = CreateObject("WScript.Shell")
+Set sha = CreateObject("Shell.Application")
+
+Sub UpdateProgress
+	Dim progress
+	progress = script.Progress
+	progresstxt.innerText = CLng(progress * 100) & "%"
+	progressbar.style.borderLeftWidth = CLng(progress * progressbar.offsetWidth) & "pt"
+End Sub
+
+Sub LockUI(disabled)
+	Dim element
+	For Each element In document.getElementsByTagName("INPUT")
+		element.disabled = disabled
+	Next
+	For Each element In document.getElementsByTagName("BUTTON")
+		element.disabled = disabled
+	Next
+End Sub
+
+Sub Window_OnError(message, url, line)
+	MsgBox "Error in line " & line & ":" & vbLf & message, vbError, document.title
+	close
+End Sub
+
+Sub ErrorHandler
+    returnValue = MsgBox(script.attributes("prompt").value, script.attributes("buttons").value, document.title)
+End Sub
+
+Sub Window_OnLoad
+	UpdateProgress
+	EdFolder.value = sh.SpecialFolders("MyDocuments")
+	document.title = script.VersionString("ProductName")
+	version.innerText = script.VersionString("ProductVersion")
+End Sub
+
+Sub PbFolder_OnClick
+	Dim folder
+	Set folder = sha.BrowseForFolder(script.Hwnd, "Extract to folder:", 0, 17)
+	If Not folder Is Nothing Then EdFolder.value = folder.Items.Item.path
+End Sub
+
+Function GetOptions(name)
+	Dim element, options
+	options = CLng(0)
+	For Each element In document.getElementsByName(name)
+		If element.checked Then options = options Or CLng(element.value)
+	Next
+	GetOptions = options
+End Function
+
+Sub PbOK_OnClick
+	LockUI True
+	progressbar.style.borderLeftWidth = "0pt"
+	script.OverwriteMode = GetOptions("OverwriteMode") Or GetOptions("OverwriteFlags")
+	script.ExtractPayload EdFolder.value
+	Dim ExitCode
+	Do
+		ExitCode = script.ExitCode
+		UpdateProgress
+	Loop While ExitCode = 259
+	progressbar.style.borderLeftWidth = progressbar.offsetWidth & "pt"
+	If ExitCode = 0 Then
+		progresstxt.innerText = "Extraction completed"
+	Else
+		progresstxt.innerText = "Extraction failed with error code 0x" & Hex(ExitCode)
+	End If
+	LockUI False
+	PbOK.setActive
+End Sub
+
+Sub PbCancel_OnClick
+	returnValue = vbCancel
+	close
+End Sub
+</script>
+
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+<meta http-equiv='MSThemeCompatible' content='yes'>
+<title>7zSfxHtm</title>
+</head>
+<body>
+<div>Extract to folder:</div>
+<input id='EdFolder'/>
+<button id='PbFolder' accesskey='B'><u>B</u>rowse</button>
+<div>
+<input type='radio' name='OverwriteMode' id='TgExtractAll' accesskey='V' checked value='0'/><label for='TgExtractAll'>O<u>v</u>erwrite files</label>
+<input type='radio' name='OverwriteMode' id='TgExtractNone' accesskey='N' value='1'/><label for='TgExtractNone'>Do<u>n</u>'t overwrite files</label>
+<input type='radio' name='OverwriteMode' id='TgExtractOlder' accesskey='O' value='2'/><label for='TgExtractOlder'>Overwrite <u>o</u>lder files</label>
+<input type='checkbox' name='OverwriteFlags' id='TgSkipLocked' accesskey='K' value='8'/><label for='TgSkipLocked'>S<u>k</u>ip locked files</label>
+</div>
+<div id='version'></div>
+<div id='buttons'>
+<span id='progressbar'></span>
+<center id='progresstxt'>0%</center>
+<hr>
+<button id='PbOK' accesskey='E'><u>E</u>xtract</button>
+<button id='PbCancel' accesskey='C'><u>C</u>lose</button>
+</div>
+</body>
