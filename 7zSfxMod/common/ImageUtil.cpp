@@ -56,6 +56,11 @@ namespace Scoped
 
 STDAPI CreateImage(LPCWSTR src, LPCWSTR dst, DWORD how, WORD img, DWORD osv)
 {
+	// Create destination file
+	HANDLE hDst = CreateFileW(dst, GENERIC_WRITE, FILE_SHARE_READ, NULL, how, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hDst == INVALID_HANDLE_VALUE)
+		return HRESULT_FROM_WIN32(ERROR_FILE_EXISTS);
+	Scoped::CloseHandle UNIQUE_NAME(hDst);
 	// Open source file
 	HANDLE hSrc = CreateFileW(src, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hSrc == INVALID_HANDLE_VALUE)
@@ -91,11 +96,6 @@ STDAPI CreateImage(LPCWSTR src, LPCWSTR dst, DWORD how, WORD img, DWORD osv)
 	// Seek to begin
 	if (SetFilePointer(hSrc, 0, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
 		return E_FAIL;
-	// Create destination file
-	HANDLE hDst = CreateFileW(dst, GENERIC_WRITE, FILE_SHARE_READ, NULL, how, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hDst == INVALID_HANDLE_VALUE)
-		return HRESULT_FROM_WIN32(ERROR_FILE_EXISTS);
-	Scoped::CloseHandle UNIQUE_NAME(hDst);
 	// Copy qualified part of file
 	while (DWORD remainingSize = qualifiedSize)
 	{

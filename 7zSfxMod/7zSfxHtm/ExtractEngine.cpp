@@ -1066,9 +1066,19 @@ HRESULT CSfxExtractEngine::Run(LPWSTR lpCmdLine)
 
 	WCHAR path[MAX_PATH];
 	GetModuleFileNameW(m_hRsrcModule, path, _countof(path));
-	m_sfxpath = path;
 
 	LPCWSTR str = lpCmdLine;
+
+	if (GetModuleHandle(NULL) == m_hRsrcModule)
+	{
+		lpCmdLine = GetCommandLineW();
+		LoadQuotedString(lpCmdLine, m_sfxpath);
+	}
+	else
+	{
+		lpCmdLine = NULL;
+		m_sfxpath = path;
+	}
 
 	if (IsSfxSwitch(str, L"about"))
 	{
@@ -1088,6 +1098,7 @@ HRESULT CSfxExtractEngine::Run(LPWSTR lpCmdLine)
 		m_sfxpath.Empty();
 		str = LoadQuotedString(lpwszValue, m_sfxpath);
 		m_hRsrcModule = LoadLibraryEx(m_sfxpath, NULL, LOAD_LIBRARY_AS_DATAFILE);
+		lpCmdLine = NULL;
 	}
 #endif
 
@@ -1102,7 +1113,7 @@ HRESULT CSfxExtractEngine::Run(LPWSTR lpCmdLine)
 	}
 
 	HRESULT hr = ClearSearchPath();
-	if (hr != S_OK)
+	if (hr != S_OK && lpCmdLine)
 	{
 		// Figure out a safe loation for the image
 		WCHAR temp[MAX_PATH];
