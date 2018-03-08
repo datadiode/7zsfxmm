@@ -21,6 +21,22 @@ typedef bool Assert;
 
 static int GetUIZoomFactor()
 {
+	struct SHCORE {
+		enum ProcessDpiAwareness {
+			ProcessDpiUnaware,
+			ProcessSystemDpiAware,
+			ProcessPerMonitorDpiAware,
+		};
+		DllHandle DLL;
+		DllImport<HRESULT (WINAPI *)(ProcessDpiAwareness)> SetProcessDpiAwareness;
+	} const SHCORE = {
+		DllHandle::Load(L"SHCORE"),
+		SHCORE.DLL("SetProcessDpiAwareness"),
+	};
+
+	if (*SHCORE.SetProcessDpiAwareness)
+		(*SHCORE.SetProcessDpiAwareness)(SHCORE.ProcessSystemDpiAware);
+
 	int zoom = 100;
 	if (HDC hdc = GetDC(NULL))
 	{
@@ -93,25 +109,12 @@ public:
 		: m_hModule(NULL)
 		, m_hWnd(NULL)
 		, m_hIcon(NULL)
-		, m_pctzoom(0)
+		, m_pctzoom(GetUIZoomFactor())
 	{
 	}
 
 	HRESULT Run(LPWSTR p)
 	{
-		struct SHCORE {
-			enum ProcessDpiAwareness {
-				ProcessDpiUnaware,
-				ProcessSystemDpiAware,
-				ProcessPerMonitorDpiAware,
-			};
-			DllHandle DLL;
-			DllImport<HRESULT (WINAPI *)(ProcessDpiAwareness)> SetProcessDpiAwareness;
-		} const SHCORE = {
-			DllHandle::Load(L"SHCORE"),
-			SHCORE.DLL("SetProcessDpiAwareness"),
-		};
-
 		struct MSHTML {
 			DllHandle DLL;
 			DllImport<SHOWHTMLDIALOGEXFN *> ShowHTMLDialogEx;
@@ -119,11 +122,6 @@ public:
 			DllHandle::Load(L"MSHTML"),
 			MSHTML.DLL("ShowHTMLDialogEx"),
 		};
-
-		if (*SHCORE.SetProcessDpiAwareness)
-			(*SHCORE.SetProcessDpiAwareness)(SHCORE.ProcessSystemDpiAware);
-
-		m_pctzoom = GetUIZoomFactor();
 
 		WCHAR path[MAX_PATH];
 		GetModuleFileNameW(m_hModule, path, _countof(path));

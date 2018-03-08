@@ -4,14 +4,14 @@
 /*              by Oleg N. Scherbakov, mailto:oleg@7zsfx.info                */
 /* Last update: Wed, 07 Mar 2018 by https://github.com/datadiode             */
 /*---------------------------------------------------------------------------*/
-#define VERSION_REVISION 4000
+#define VERSION_REVISION 4001
 
 #ifndef _VERSION_H_INCLUDED_
 #define _VERSION_H_INCLUDED_
 
 #define VERSION_SFX_NUM_TEXT		"1.0.0"
 #define VERSION_SFX_NUM_BIN			1,0,0,VERSION_REVISION
-#define VERSION_SFX_DATE_EN			"March 07, 2018"
+#define VERSION_SFX_DATE_EN			"March 08, 2018"
 #define VERSION_SFX_BRANCH_EN		""
 #define VERSION_SFX_LEGAL_COPYRIGHT	"Copyright © 2005-2016 Oleg N. Scherbakov, 2018 Jochen Neubeck"
 

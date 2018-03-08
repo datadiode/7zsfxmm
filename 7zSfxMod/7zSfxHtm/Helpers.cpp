@@ -2,13 +2,29 @@
 /* File:        Helpers.cpp                                                  */
 /* Created:     Sat, 30 Jul 2005 11:10:00 GMT                                */
 /*              by Oleg N. Scherbakov, mailto:oleg@7zsfx.info                */
-/* Last update: Wed, 07 Mar 2018 by https://github.com/datadiode             */
+/* Last update: Wed, 08 Mar 2018 by https://github.com/datadiode             */
 /*---------------------------------------------------------------------------*/
 #include "stdafx.h"
 #include "7zSfxHtmInt.h"
 
 int GetUIZoomFactor()
 {
+	struct SHCORE {
+		enum ProcessDpiAwareness {
+			ProcessDpiUnaware,
+			ProcessSystemDpiAware,
+			ProcessPerMonitorDpiAware,
+		};
+		DllHandle DLL;
+		DllImport<HRESULT (WINAPI *)(ProcessDpiAwareness)> SetProcessDpiAwareness;
+	} const SHCORE = {
+		DllHandle::Load(L"SHCORE"),
+		SHCORE.DLL("SetProcessDpiAwareness"),
+	};
+
+	if (*SHCORE.SetProcessDpiAwareness)
+		(*SHCORE.SetProcessDpiAwareness)(SHCORE.ProcessSystemDpiAware);
+
 	int zoom = 100;
 	if (HDC hdc = GetDC(NULL))
 	{

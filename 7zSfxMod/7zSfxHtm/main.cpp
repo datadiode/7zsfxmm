@@ -2,7 +2,7 @@
 /* File:        main.cpp                                                     */
 /* Created:     Fri, 29 Jul 2005 03:23:00 GMT                                */
 /*              by Oleg N. Scherbakov, mailto:oleg@7zsfx.info                */
-/* Last update: Wed, 07 Mar 2018 by https://github.com/datadiode             */
+/* Last update: Wed, 08 Mar 2018 by https://github.com/datadiode             */
 /*---------------------------------------------------------------------------*/
 #include "stdafx.h"
 #include <cpl.h>
@@ -24,20 +24,6 @@ static LPWSTR g_lpszCmdLine = NULL;
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpszCmdLine, int)
 {
-	struct SHCORE {
-		enum ProcessDpiAwareness {
-			ProcessDpiUnaware,
-			ProcessSystemDpiAware,
-			ProcessPerMonitorDpiAware,
-		};
-		DllHandle DLL;
-		DllImport<HRESULT (WINAPI *)(ProcessDpiAwareness)> SetProcessDpiAwareness;
-	} const SHCORE = {
-		DllHandle::Load(L"SHCORE"),
-		SHCORE.DLL("SetProcessDpiAwareness"),
-	};
-	if (*SHCORE.SetProcessDpiAwareness)
-		(*SHCORE.SetProcessDpiAwareness)(SHCORE.ProcessSystemDpiAware);
 	_set_new_handler(sfx_new_handler);
 	_set_new_mode(1);
 	HRESULT hr = S_OK;
