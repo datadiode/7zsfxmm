@@ -54,7 +54,7 @@ namespace Scoped
 	};
 }
 
-STDAPI CreateImage(LPCWSTR src, LPCWSTR dst, DWORD how, WORD img, DWORD osv)
+STDAPI CreateImage(LPCWSTR src, LPCWSTR dst, DWORD how, DWORD img, DWORD osv)
 {
 	// Create destination file
 	HANDLE hDst = CreateFileW(dst, GENERIC_WRITE, FILE_SHARE_READ, NULL, how, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -109,14 +109,18 @@ STDAPI CreateImage(LPCWSTR src, LPCWSTR dst, DWORD how, WORD img, DWORD osv)
 		qualifiedSize -= processedSize;
 	}
 	// Patch file header as specified
-	WORD const xCharacteristics = (nt.FileHeader.Characteristics ^ img) & IMAGE_FILE_DLL;
-	WORD const xWindowsVersionH = HIWORD(osv) ? HIWORD(osv) ^ nt.OptionalHeader.MajorOperatingSystemVersion : 0;
-	WORD const xWindowsVersionL = LOWORD(osv) ? LOWORD(osv) ^ nt.OptionalHeader.MinorOperatingSystemVersion : 0;
-	if (xCharacteristics | xWindowsVersionH | xWindowsVersionL)
+	WORD const mCharacteristics		= IMAGE_FILE_EXECUTABLE_IMAGE | IMAGE_FILE_DLL;
+	WORD const mDllCharacteristics	= IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE;
+	WORD const xCharacteristics		= img ? LOWORD(img) ^ nt.FileHeader.Characteristics & mCharacteristics : 0;
+	WORD const xDllCharacteristics	= img ? HIWORD(img) ^ nt.OptionalHeader.DllCharacteristics & mDllCharacteristics : 0;
+	WORD const xMajorTargetVersion	= osv ? HIWORD(osv) ^ nt.OptionalHeader.MajorOperatingSystemVersion : 0;
+	WORD const xMinorTargetVersion	= osv ? LOWORD(osv) ^ nt.OptionalHeader.MinorOperatingSystemVersion : 0;
+	if (xCharacteristics | xDllCharacteristics | xMajorTargetVersion | xMinorTargetVersion)
 	{
 		nt.FileHeader.Characteristics ^= xCharacteristics;
-		nt.OptionalHeader.MajorOperatingSystemVersion ^= xWindowsVersionH;
-		nt.OptionalHeader.MinorOperatingSystemVersion ^= xWindowsVersionL;
+		nt.OptionalHeader.DllCharacteristics ^= xDllCharacteristics;
+		nt.OptionalHeader.MajorOperatingSystemVersion ^= xMajorTargetVersion;
+		nt.OptionalHeader.MinorOperatingSystemVersion ^= xMinorTargetVersion;
 		nt.OptionalHeader.MajorSubsystemVersion = nt.OptionalHeader.MajorOperatingSystemVersion;
 		nt.OptionalHeader.MinorSubsystemVersion = nt.OptionalHeader.MinorOperatingSystemVersion;
 		if (SetFilePointer(hDst, mz.e_lfanew, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)

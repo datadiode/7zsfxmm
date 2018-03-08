@@ -25,6 +25,6 @@ struct DllImport {
 
 STDAPI ClearSearchPath();
 
-STDAPI CreateImage(LPCWSTR src, LPCWSTR dst, DWORD how, WORD img, DWORD osv);
+STDAPI CreateImage(LPCWSTR src, LPCWSTR dst, DWORD how, DWORD img, DWORD osv);
 
 STDAPI CreateSafeImage(LPCWSTR path, LPWSTR temp);

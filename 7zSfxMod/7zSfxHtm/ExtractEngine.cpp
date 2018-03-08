@@ -2,7 +2,7 @@
 /* File:        ExtractEngine.cpp                                            */
 /* Created:     Wed, 05 Oct 2005 07:36:00 GMT                                */
 /*              by Oleg N. Scherbakov, mailto:oleg@7zsfx.info                */
-/* Last update: Wed, 07 Mar 2018 by https://github.com/datadiode             */
+/* Last update: Thu, 08 Mar 2018 by https://github.com/datadiode             */
 /*---------------------------------------------------------------------------*/
 #include "stdafx.h"
 #include <urlmon.h>
@@ -734,12 +734,15 @@ void CSfxExtractEngine::AboutBox()
 
 HRESULT CSfxExtractEngine::CreateSelfExtractor(LPCWSTR lpwszValue)
 {
-	WORD img = IMAGE_FILE_EXECUTABLE_IMAGE;
+	DWORD img = static_cast<DWORD>(MAKELONG(
+		IMAGE_FILE_EXECUTABLE_IMAGE,
+		IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE));
 	DWORD osv = 0;
 	LPCWSTR lpManifestName = CREATEPROCESS_MANIFEST_RESOURCE_ID;
 	if (LPCWSTR lpwszAhead = IsSfxSwitch(lpwszValue, L"dll"))
 	{
-		img = IMAGE_FILE_EXECUTABLE_IMAGE | IMAGE_FILE_DLL;
+		img = static_cast<DWORD>(MAKELONG(
+			IMAGE_FILE_EXECUTABLE_IMAGE | IMAGE_FILE_DLL, 0));
 		lpManifestName = ISOLATIONAWARE_MANIFEST_RESOURCE_ID;
 		lpwszValue = lpwszAhead;
 	}
