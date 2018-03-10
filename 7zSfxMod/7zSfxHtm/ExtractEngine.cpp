@@ -2,7 +2,7 @@
 /* File:        ExtractEngine.cpp                                            */
 /* Created:     Wed, 05 Oct 2005 07:36:00 GMT                                */
 /*              by Oleg N. Scherbakov, mailto:oleg@7zsfx.info                */
-/* Last update: Thu, 08 Mar 2018 by https://github.com/datadiode             */
+/* Last update: Thu, 10 Mar 2018 by https://github.com/datadiode             */
 /*---------------------------------------------------------------------------*/
 #include "stdafx.h"
 #include <urlmon.h>
@@ -334,9 +334,17 @@ STDMETHODIMP CSfxExtractEngine::get_Progress(DOUBLE *pdProgress)
 BOOL CALLBACK CSfxExtractEngine::SfxEnumResNameProc(HMODULE hModule, LPCWSTR lpType, LPWSTR lpName, LONG_PTR lParam)
 {
 	CSfxExtractEngine *const pThis = reinterpret_cast<CSfxExtractEngine *>(lParam);
+	HRSRC const hFindRes = FindResource(hModule, lpName, lpType);
+	WCHAR szName[8];
+	ATOM atom = 0;
+	if (IS_INTRESOURCE(lpName))
+	{
+		atom = reinterpret_cast<ATOM>(lpName);
+		GetAtomNameW(atom, szName, _countof(szName));
+		lpName = szName;
+	}
 	if (!PathMatchSpec(lpName, pThis->m_filter.Ptr()))
 		return TRUE;
-	HRSRC const hFindRes = FindResource(hModule, lpName, lpType);
 	HGLOBAL const hLoadRes = LoadResource(hModule, hFindRes);
 	Byte *inBuffer = static_cast<Byte *>(LockResource(hLoadRes));
 	UInt32 inSize32 = SizeofResource(hModule, hFindRes);
@@ -364,17 +372,25 @@ BOOL CALLBACK CSfxExtractEngine::SfxEnumResNameProc(HMODULE hModule, LPCWSTR lpT
 	}
 	if (pThis->m_hUpdate)
 	{
-		lpType = pThis->m_rctype;
-		switch (*lpType)
+		if (atom)
 		{
-		case L'\0':
-			lpType = PathFindExtensionW(lpName);
-			lpType = wcscmp(lpType, L".ICO") == 0 ? RT_GROUP_ICON :
-				wcscmp(lpType, L".MANIFEST") == 0 ? RT_MANIFEST : RT_HTML;
-			break;
-		case L'#':
-			lpType = MAKEINTATOM(FindAtom(lpType));
-			break;
+			lpType = MAKEINTATOM(atom);
+			lpName = MAKEINTRESOURCE(1);
+		}
+		else
+		{
+			lpType = pThis->m_rctype.Ptr();
+			switch (*lpType)
+			{
+			case L'\0':
+				lpType = PathFindExtensionW(lpName);
+				lpType = wcscmp(lpType, L".ICO") == 0 ? RT_GROUP_ICON :
+					wcscmp(lpType, L".MANIFEST") == 0 ? RT_MANIFEST : RT_HTML;
+				break;
+			case L'#':
+				lpType = MAKEINTATOM(FindAtomW(lpType));
+				break;
+			}
 		}
 		if (lpType == RT_GROUP_ICON)
 		{
@@ -792,6 +808,13 @@ HRESULT CSfxExtractEngine::CreateSelfExtractor(LPCWSTR lpwszValue)
 		UString InFileName;
 		SKIP_WHITESPACES_W(lpwszAhead);
 		lpwszValue = LoadQuotedString(lpwszAhead, InFileName);
+		LPCWSTR lpName = InFileName.Ptr() + InFileName.ReverseFind_PathSepar() + 1;
+		if (*lpwszValue == L'#')
+		{
+			UString Value;
+			lpwszValue = LoadQuotedString(lpwszValue, Value);
+			lpName = MAKEINTRESOURCE(FindAtomW(Value));
+		}
 		CInFile InFile;
 		UInt64 fileSize;
 		if (!InFile.Open(InFileName) || !InFile.GetLength(fileSize))
@@ -816,7 +839,6 @@ HRESULT CSfxExtractEngine::CreateSelfExtractor(LPCWSTR lpwszValue)
 		}
 		CBuffer<Byte> outBuffer;
 		LPVOID lpData = inBuffer;
-		LPCWSTR lpName = InFileName.Ptr() + InFileName.ReverseFind_PathSepar() + 1;
 		if (lpType == RT_GROUP_ICON)
 		{
 			lpName = MAKEINTRESOURCE(1);
@@ -835,7 +857,8 @@ HRESULT CSfxExtractEngine::CreateSelfExtractor(LPCWSTR lpwszValue)
 					lMaxWidth = limits[!i];
 				}
 				// Consume the extra argument
-				lpwszValue = LoadQuotedString(lpwszValue, InFileName);
+				UString Value;
+				lpwszValue = LoadQuotedString(lpwszValue, Value);
 			}
 			IconHeader const *const qHeader = reinterpret_cast<IconHeader *>(static_cast<Byte *>(inBuffer));
 			IconFileRecord const *qEntry = reinterpret_cast<IconFileRecord const *>(qHeader + 1);
