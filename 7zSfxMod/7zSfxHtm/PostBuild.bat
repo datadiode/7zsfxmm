@@ -10,9 +10,11 @@ REM echo $(OutDir) = %2
 REM echo $(PlatformArchitecture) = %3
 REM echo $(TargetExt) = %4
 
-set SevenZip=%ProgramFiles%\7-Zip\
+set $=%ProgramW6432%\7-Zip\;%ProgramFiles%\7-Zip\;%ProgramFiles(x86)%\7-Zip\
+for %%$ in (7z.exe) do set SevenZip=%%~$$:$
+
 set ArchivePath=%~dp0..\..\7z-src.7z
-if not exist "%ArchivePath%" "%SevenZip%7z.exe" a "%ArchivePath%" -m0=LZMA2 -m1=Deflate -r "%~dp0..\..\7-Zip\*"
+if not exist "%ArchivePath%" "%SevenZip%" a "%ArchivePath%" -m0=LZMA2 -m1=Deflate -r "%~dp0..\..\7-Zip\*"
 
 goto :PostBuild$%3%4
 
