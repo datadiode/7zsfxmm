@@ -17,7 +17,17 @@ import "ocidl.idl";
 interface IHTDialogHost : IDispatch
 {
 	[id(1), propget]
+	HRESULT Path([out, retval] BSTR *pbsPath);
+	[id(2), propget]
 	HRESULT Hwnd([out, retval] LONG *plHwnd);
+	[id(3), propput]
+	HRESULT Icon([in] BSTR bsPath);
+	[id(3), propget]
+	HRESULT Icon([out, retval] BSTR *pbsPath);
+	[id(4), propput]
+	HRESULT AppUserModel([in] int pid, [in] REFVARIANT val);
+	[id(5), propget]
+	HRESULT CmdLine([out, retval] BSTR *pbsCmdLine);
 };
 
 [

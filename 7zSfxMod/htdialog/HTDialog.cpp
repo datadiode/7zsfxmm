@@ -4,6 +4,8 @@
 	MIT License: http://www.opensource.org/licenses/mit-license.php
 */
 #include <windows.h>
+#include <propsys.h>
+#include <propkey.h>
 #include <propvarutil.h>
 #include <urlmon.h>
 #include <process.h>
@@ -46,6 +48,17 @@ static int GetUIZoomFactor()
 	return zoom;
 }
 
+static HWND CreateHiddenOwner()
+{
+	HWND hwnd = CreateWindowW(
+		L"STATIC", NULL, WS_POPUP, 0, 0,
+		GetSystemMetrics(SM_CXSCREEN),
+		GetSystemMetrics(SM_CYSCREEN),
+		NULL, NULL, NULL, NULL);
+	SetFocus(hwnd);
+	return hwnd;
+}
+
 static LPWSTR EatPrefix(LPWSTR text, LPCWSTR prefix)
 {
 	int len = lstrlenW(prefix);
@@ -68,29 +81,71 @@ class ScaleFeatures
 		lstrcpynW(buf + len, q, n + 1);
 		len += n;
 	}
+	static LPCWSTR IsKeyword(LPCWSTR features, LPCWSTR p, LPCWSTR keyword)
+	{
+		LPCWSTR q = StrRStrIW(features, p, keyword);
+		return q && keyword[p - q] == L'\0' &&
+			(q == features || StrChrW(L"\t ;", q[-1])) ? q : NULL;
+	}
+	static bool IsYesKeyword(LPCWSTR p, LPCWSTR q)
+	{
+		return StrRStrIW(p, q, L"yes") || StrRStrIW(p, q, L"1") || StrRStrIW(p, q, L"on");
+	}
+
 public:
-	ScaleFeatures(LPCWSTR features, int by) : len(0)
+	int pctzoom;
+	bool taskicon;
+	bool visible;
+
+	ScaleFeatures(int by)
+		: len(0)
+		, pctzoom(by)
+		, taskicon(true)
+		, visible(true)
+	{ }
+	void Parse(LPCWSTR features)
 	{
 		if (features)
 		{
-			while (LPCWSTR s = StrChrW(features, L':'))
+			while (LPCWSTR p = StrChrW(features, L':'))
 			{
-				append(features, ++s - features);
-				int val = StrToIntW(s);
-				LPWSTR t = StrChrW(s, L';');
-				LPWSTR p = StrRChrW(s, t, L'p');
-				LPWSTR x = StrRChrW(s, t, L'x');
-				if (x - p == 1)
+				p += StrSpnW(++p, L" \t\r\n");
+				if (LPCWSTR q = IsKeyword(features, p, L"zoom"))
 				{
-					val = MulDiv(val, by, 100);
-					WCHAR buf[12];
-					append(buf, wsprintfW(buf, L"%d", val));
-					features = p;
+					append(features, q - features);
+					q = StrChrW(p, L';');
+					pctzoom = MulDiv(pctzoom, StrToIntW(p), 100);
+					p = q ? q + 1 : L"";
+				}
+				else if (LPCWSTR q = IsKeyword(features, p, L"taskicon"))
+				{
+					append(features, q - features);
+					q = StrChrW(p, L';');
+					taskicon = IsYesKeyword(p, q);
+					p = q ? q + 1 : L"";
+				}
+				else if (LPCWSTR q = IsKeyword(features, p, L"visible"))
+				{
+					append(features, q - features);
+					q = StrChrW(p, L';');
+					visible = IsYesKeyword(p, q);
+					p = q ? q + 1 : L"";
 				}
 				else
 				{
-					features = s;
+					append(features, p - features);
+					if (int val = StrToIntW(p))
+					{
+						if (LPCWSTR q = StrRStrIW(p, StrChrW(p, L';'), L"px"))
+						{
+							val = MulDiv(val, pctzoom, 100);
+							WCHAR buf[12];
+							append(buf, wsprintfW(buf, L"%d", val));
+							p = q;
+						}
+					}
 				}
+				features = p;
 			}
 			append(features, lstrlenW(features));
 		}
@@ -99,30 +154,71 @@ public:
 	LPWSTR Get() { return buf; }
 };
 
+class FindResIndex
+{
+	int index;
+	BOOL found;
+	LPWSTR const name;
+	static BOOL CALLBACK EnumResNameProc(HMODULE, LPCWSTR, LPWSTR lpName, LONG_PTR lParam)
+	{
+		FindResIndex *const p = reinterpret_cast<FindResIndex *>(lParam);
+		if (IS_INTRESOURCE(lpName) || IS_INTRESOURCE(p->name) ?
+			lpName == p->name : lstrcmpiW(lpName, p->name) == 0)
+		{
+			p->found = TRUE;
+			return FALSE;
+		}
+		++p->index;
+		return TRUE;
+	}
+	FindResIndex(FindResIndex const &);
+	FindResIndex &operator=(FindResIndex const &);
+public:
+	FindResIndex(HMODULE hModule, LPCWSTR lpType, LPWSTR lpName)
+		: index(0)
+		, found(FALSE)
+		, name(lpName)
+	{
+		EnumResourceNamesW(hModule, lpType, EnumResNameProc, reinterpret_cast<LONG_PTR>(this));
+	}
+	operator int() const { return found ? index : -1; }
+};
+
 class CHTDialogHost
 	: public IHTDialogHost
 	, public IElementBehavior
 	, public IElementBehaviorFactory
 {
+	// SHELL32.DLL imports
+	struct SHELL32 {
+		DllHandle DLL;
+		DllImport<HRESULT (WINAPI *)(HWND, REFIID, void **)> SHGetPropertyStoreForWindow;
+		SHELL32() {
+			DLL.h = DllHandle::Load(L"SHELL32");
+			SHGetPropertyStoreForWindow.p = DLL("SHGetPropertyStoreForWindow");
+		}
+	} const SHELL32;
+	// MSHTML.DLL imports
+	struct MSHTML {
+		DllHandle DLL;
+		DllImport<SHOWHTMLDIALOGEXFN *> ShowHTMLDialogEx;
+		MSHTML() {
+			DLL.h = DllHandle::Load(L"MSHTML");
+			ShowHTMLDialogEx.p = DLL("ShowHTMLDialogEx");
+		}
+	} const MSHTML;
 public:
 	CHTDialogHost()
-		: m_hModule(NULL)
+		: m_cmdline(GetCommandLineW())
+		, m_hModule(GetModuleHandle(NULL))
 		, m_hWnd(NULL)
-		, m_hIcon(NULL)
-		, m_pctzoom(GetUIZoomFactor())
+		, m_uCustomIcons(0)
+		, m_pctzoom(100)
 	{
+		SecureZeroMemory(&m_icon, sizeof m_icon);
 	}
-
-	HRESULT Run(LPWSTR p)
+	HRESULT Run()
 	{
-		struct MSHTML {
-			DllHandle DLL;
-			DllImport<SHOWHTMLDIALOGEXFN *> ShowHTMLDialogEx;
-		} const MSHTML = {
-			DllHandle::Load(L"MSHTML"),
-			MSHTML.DLL("ShowHTMLDialogEx"),
-		};
-
 		WCHAR path[MAX_PATH];
 		GetModuleFileNameW(m_hModule, path, _countof(path));
 		AutoReleasePtr<ITypeLib> spTypeLib;
@@ -133,6 +229,10 @@ public:
 		LPWSTR argv[2] = { NULL, NULL };
 		LPWSTR features = NULL;
 		DWORD flags = HTMLDLG_MODAL | HTMLDLG_VERIFY;
+		HWND owner = NULL;
+		int const pctzoom = GetUIZoomFactor();
+		AutoBSTR cmdline = SysAllocString(m_cmdline);
+		LPWSTR p = cmdline;
 		do
 		{
 			LPWSTR q = PathGetArgsW(p);
@@ -141,12 +241,8 @@ public:
 			PathRemoveArgsW(p);
 			if (*p != L'/')
 				PathUnquoteSpacesW(argv[argc++] = p);
-			else if (lstrcmpi(t, L"hidden") == 0)
-				flags |= HTMLDLG_NOUI;
 			else if ((r = EatPrefix(t, L"features:")) != NULL)
 				PathUnquoteSpacesW(features = r);
-			else if ((r = EatPrefix(t, L"zoom:")) != NULL)
-				m_pctzoom = MulDiv(m_pctzoom, StrToInt(r), 100);
 			else
 				break;
 			p = q + StrSpnW(q, L" \t\r\n");
@@ -159,10 +255,6 @@ public:
 		if (PathIsRelativeW(argv[1]) && FindResourceW(m_hModule, argv[1], RT_HTML))
 		{
 			wsprintfW(url, L"res://%s//%s", PathFindFileNameW(path), argv[1]);
-			lstrcpyW(path, argv[1]);
-			if (*path != L'#')
-				PathRenameExtensionW(path, L".ICO");
-			m_hIcon = LoadIconW(m_hModule, path);
 			argv[1] = url;
 		}
 
@@ -176,7 +268,15 @@ public:
 			DWORD phlags = HTMLDLG_MODAL | HTMLDLG_VERIFY | HTMLDLG_NOUI;
 			do 
 			{
-				if (FAILED(hr = (*MSHTML.ShowHTMLDialogEx)(NULL, moniker, phlags, &in, ScaleFeatures(m_features, m_pctzoom).Get(), &out)))
+				ScaleFeatures f(pctzoom);
+				f.Parse(features);
+				f.Parse(m_features);
+				m_pctzoom = f.pctzoom;
+				if (!f.taskicon && owner == NULL)
+					owner = CreateHiddenOwner();
+				if (!f.visible)
+					flags |= HTMLDLG_NOUI;
+				if (FAILED(hr = (*MSHTML.ShowHTMLDialogEx)(owner, moniker, phlags, &in, f.Get(), &out)))
 					break;
 				if (FAILED(hr = VariantChangeType(&out, &out, 0, VT_I4)))
 					break;
@@ -188,6 +288,23 @@ public:
 			moniker->Release();
 		}
 		return hr;
+	}
+	HICON LoadShellIcon(LPWSTR path, UINT flags)
+	{
+		SecureZeroMemory(&m_icon, sizeof m_icon);
+		if (*path == L'.')
+		{
+			SHGetFileInfoW(path, FILE_ATTRIBUTE_NORMAL, &m_icon, sizeof m_icon, flags);
+		}
+		else
+		{
+			int cx = GetSystemMetrics(flags & SHGFI_SMALLICON ? SM_CXSMICON : SM_CXICON);
+			int cy = GetSystemMetrics(flags & SHGFI_SMALLICON ? SM_CYSMICON : SM_CYICON);
+			m_icon.hIcon = reinterpret_cast<HICON>(LoadImage(m_hModule, path, IMAGE_ICON, cx, cy, 0));
+			m_icon.iIcon = FindResIndex(m_hModule, RT_GROUP_ICON, path);
+			GetModuleFileNameW(m_hModule, m_icon.szDisplayName, _countof(m_icon.szDisplayName));
+		}
+		return m_icon.hIcon;
 	}
 	// IUnknown
 	STDMETHOD(QueryInterface)(REFIID iid, void **ppv)
@@ -254,13 +371,15 @@ public:
 		switch (lEvent)
 		{
 		case BEHAVIOREVENT_DOCUMENTREADY:
+			m_hWnd = NULL;
+			m_spPropertyStore.Release();
 			if (m_spOleWindow)
 			{
 				m_spOleWindow->GetWindow(&m_hWnd);
 				while (HWND hWnd = GetParent(m_hWnd))
 					m_hWnd = hWnd;
-				SendMessage(m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)m_hIcon);
-				SendMessage(m_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)m_hIcon);
+				if (*SHELL32.SHGetPropertyStoreForWindow)
+					(*SHELL32.SHGetPropertyStoreForWindow)(m_hWnd, IID_PPV_ARGS(&m_spPropertyStore));
 			}
 			if (m_spDocument2)
 			{
@@ -324,17 +443,64 @@ public:
 		return E_INVALIDARG;
 	}
 	// IHTDialogHost
+	STDMETHOD(get_Path)(BSTR *pbsPath)
+	{
+		WCHAR path[MAX_PATH];
+		GetModuleFileNameW(m_hModule, path, _countof(path));
+		SysReAllocString(pbsPath, path);
+		return S_OK;
+	}
 	STDMETHOD(get_Hwnd)(LONG *plHwnd)
 	{
 		*plHwnd = reinterpret_cast<LONG>(m_hWnd);
 		return S_OK;
 	}
-
+	STDMETHOD(put_Icon)(BSTR bsPath)
+	{
+		if (HICON hIcon = LoadShellIcon(bsPath, SHGFI_ICONLOCATION | SHGFI_USEFILEATTRIBUTES | SHGFI_ICON | SHGFI_LARGEICON))
+		{
+			hIcon = (HICON)SendMessage(m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+			if (hIcon && (m_uCustomIcons & (1 << SHGFI_LARGEICON)))
+				DestroyIcon(hIcon);
+			m_uCustomIcons |= 1 << SHGFI_LARGEICON;
+		}
+		if (HICON hIcon = LoadShellIcon(bsPath, SHGFI_ICONLOCATION | SHGFI_USEFILEATTRIBUTES | SHGFI_ICON | SHGFI_SMALLICON))
+		{
+			hIcon = (HICON)SendMessage(m_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+			if (hIcon && (m_uCustomIcons & (1 << SHGFI_SMALLICON)))
+				DestroyIcon(hIcon);
+			m_uCustomIcons |= 1 << SHGFI_SMALLICON;
+		}
+		return S_OK;
+	}
+	STDMETHOD(get_Icon)(BSTR *pbsPath)
+	{
+		WCHAR path[MAX_PATH + 40];
+		wsprintfW(path, L"\"%s\",%d", m_icon.szDisplayName, m_icon.iIcon);
+		SysReAllocString(pbsPath, path);
+		return S_OK;
+	}
+	STDMETHOD(put_AppUserModel)(int pid, REFVARIANT var)
+	{
+		PROPERTYKEY const key =
+		{
+			{ 0x9F4C2855, 0x9F79, 0x4B39, { 0xA8, 0xD0, 0xE1, 0xD4, 0x2D, 0xE1, 0xD5, 0xF3 } }, pid
+		};
+		SafeInvoke(m_spPropertyStore)->SetValue(key, reinterpret_cast<REFPROPVARIANT>(var));
+		return S_OK;
+	}
+	STDMETHOD(get_CmdLine)(BSTR *pbsCmdLine)
+	{
+		SysReAllocString(pbsCmdLine, m_cmdline);
+		return S_OK;
+	}
 private:
+	LPCWSTR const					m_cmdline;
 	HMODULE const					m_hModule;
 	HWND							m_hWnd;
-	HICON							m_hIcon;
+	UINT							m_uCustomIcons;
 	int								m_pctzoom;
+	SHFILEINFOW						m_icon;
 	AutoBSTR						m_title;
 	AutoBSTR						m_features;
 	AutoReleasePtr<ITypeInfo>		m_spTypeInfo;
@@ -342,6 +508,7 @@ private:
 	AutoReleasePtr<IOleWindow>		m_spOleWindow;
 	AutoReleasePtr<IHTMLDocument2>	m_spDocument2;
 	AutoReleasePtr<IHTMLWindow2>	m_spWindow2;
+	AutoReleasePtr<IPropertyStore>	m_spPropertyStore;
 };
 
 int WINAPI WinMainCRTStartup()
@@ -350,7 +517,7 @@ int WINAPI WinMainCRTStartup()
 	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 	if (SUCCEEDED(hr))
 	{
-		hr = CHTDialogHost().Run(GetCommandLineW());
+		hr = CHTDialogHost().Run();
 		CoUninitialize();
 	}
 	ExitProcess(hr);
