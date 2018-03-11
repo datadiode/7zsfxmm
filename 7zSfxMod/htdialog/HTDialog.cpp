@@ -95,12 +95,14 @@ class ScaleFeatures
 public:
 	int pctzoom;
 	bool taskicon;
+	bool verify;
 	bool visible;
 
 	ScaleFeatures(int by)
 		: len(0)
 		, pctzoom(by)
 		, taskicon(true)
+		, verify(true)
 		, visible(true)
 	{ }
 	void Parse(LPCWSTR features)
@@ -122,6 +124,13 @@ public:
 					append(features, q - features);
 					q = StrChrW(p, L';');
 					taskicon = IsYesKeyword(p, q);
+					p = q ? q + 1 : L"";
+				}
+				else if (LPCWSTR q = IsKeyword(features, p, L"verify"))
+				{
+					append(features, q - features);
+					q = StrChrW(p, L';');
+					verify = IsYesKeyword(p, q);
 					p = q ? q + 1 : L"";
 				}
 				else if (LPCWSTR q = IsKeyword(features, p, L"visible"))
@@ -228,8 +237,6 @@ public:
 		int argc = 0;
 		LPWSTR argv[2] = { NULL, NULL };
 		LPWSTR features = NULL;
-		DWORD flags = HTMLDLG_MODAL | HTMLDLG_VERIFY;
-		HWND owner = NULL;
 		int const pctzoom = GetUIZoomFactor();
 		AutoBSTR cmdline = SysAllocString(m_cmdline);
 		LPWSTR p = cmdline;
@@ -265,23 +272,26 @@ public:
 			VARIANT in, out;
 			InitVariantFromDispatch(this, &in);
 			VariantInit(&out);
-			DWORD phlags = HTMLDLG_MODAL | HTMLDLG_VERIFY | HTMLDLG_NOUI;
+			HWND owner = NULL;
+			DWORD flags = HTMLDLG_MODAL | HTMLDLG_VERIFY | HTMLDLG_NOUI;
 			do 
 			{
 				ScaleFeatures f(pctzoom);
 				f.Parse(features);
 				f.Parse(m_features);
 				m_pctzoom = f.pctzoom;
-				if (!f.taskicon && owner == NULL)
-					owner = CreateHiddenOwner();
+				if (!f.verify)
+					flags &= ~HTMLDLG_VERIFY;
 				if (!f.visible)
 					flags |= HTMLDLG_NOUI;
-				if (FAILED(hr = (*MSHTML.ShowHTMLDialogEx)(owner, moniker, phlags, &in, f.Get(), &out)))
+				if (!f.taskicon && owner == NULL)
+					owner = CreateHiddenOwner();
+				if (FAILED(hr = (*MSHTML.ShowHTMLDialogEx)(owner, moniker, flags, &in, f.Get(), &out)))
 					break;
 				if (FAILED(hr = VariantChangeType(&out, &out, 0, VT_I4)))
 					break;
 				hr = V_I4(&out);
-				phlags = flags;
+				flags &= ~HTMLDLG_NOUI;
 			} while (SysStringLen(m_features) != 0);
 			VariantClear(&in);
 			VariantClear(&out);
@@ -476,7 +486,7 @@ public:
 	STDMETHOD(get_Icon)(BSTR *pbsPath)
 	{
 		WCHAR path[MAX_PATH + 40];
-		wsprintfW(path, L"\"%s\",%d", m_icon.szDisplayName, m_icon.iIcon);
+		wsprintfW(path, L"%s,%d", m_icon.szDisplayName, m_icon.iIcon);
 		SysReAllocString(pbsPath, path);
 		return S_OK;
 	}
