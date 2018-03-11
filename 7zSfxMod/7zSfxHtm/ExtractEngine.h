@@ -138,6 +138,7 @@ public:
 	STDMETHOD(put_WindowState)(LONG lWindowState);
 	STDMETHOD(get_VersionString)(BSTR bsKey, BSTR *pbsValue);
 	STDMETHOD(put_Password)(BSTR bsPassword);
+	STDMETHOD(FindIcon)(BSTR bsPath, BSTR bsName, BSTR *pbsLink);
 
 	CSfxExtractEngine(HINSTANCE hRsrcModule)
 		: m_pVersionStrings(CVersionData::Load(hRsrcModule)->Find(L"StringFileInfo")->First())

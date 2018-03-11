@@ -29,6 +29,60 @@ DECLARE_BSTR_CONSTANT(BSTR_prompt,		L"prompt");
 DECLARE_BSTR_CONSTANT(BSTR_buttons,		L"buttons");
 DECLARE_BSTR_CONSTANT(BSTR_title,		L"title");
 
+class ScaleFeatures : public UString
+{
+public:
+	ScaleFeatures(UString const &features, int by) : UString(features)
+	{
+		int i = 0;
+		while ((i = Find(L':', i) + 1) != 0)
+		{
+			LPCWSTR s = Ptr(i);
+			LPWSTR t = NULL;
+			int val = wcstol(s, &t, 10);
+			if (t > s && t[0] == L'p' && t[1] == L'x')
+			{
+				val = MulDiv(val, by, 100);
+				WCHAR buf[12];
+				_itow(val, buf, 10);
+				Delete(i, static_cast<unsigned>(t - s));
+				Insert(i, buf);
+			}
+		}
+	}
+	LPWSTR Get() { return const_cast<LPWSTR>(Ptr()); }
+};
+
+class FindResIndex
+{
+	int index;
+	BOOL found;
+	LPWSTR const name;
+	static BOOL CALLBACK EnumResNameProc(HMODULE, LPCWSTR, LPWSTR lpName, LONG_PTR lParam)
+	{
+		FindResIndex *const p = reinterpret_cast<FindResIndex *>(lParam);
+		if (IS_INTRESOURCE(lpName) || IS_INTRESOURCE(p->name) ?
+			lpName == p->name : _wcsicmp(lpName, p->name) == 0)
+		{
+			p->found = TRUE;
+			return FALSE;
+		}
+		++p->index;
+		return TRUE;
+	}
+	FindResIndex(FindResIndex const &);
+	FindResIndex &operator=(FindResIndex const &);
+public:
+	FindResIndex(HMODULE hModule, LPCWSTR lpType, LPWSTR lpName)
+		: index(0)
+		, found(FALSE)
+		, name(lpName)
+	{
+		EnumResourceNamesW(hModule, lpType, EnumResNameProc, reinterpret_cast<LONG_PTR>(this));
+	}
+	operator int() const { return found ? index : -1; }
+};
+
 static UINT const MsgBoxMessage = RegisterWindowMessage(L"7zSfxHtm.MsgBoxMessage");
 
 int CSfxExtractEngine::MsgBoxHandler(MSGBOXPARAMS *params)
@@ -494,9 +548,9 @@ STDMETHODIMP CSfxExtractEngine::ExtractAdjunct(BSTR bsPath, BSTR bsFilter, BSTR 
 			SfxErrorDialog(GetLastError(), ERR_CREATE_FOLDER, m_path.Ptr());
 #endif
 			m_path.Add_PathSepar();
-			SfxCreateDirectoryPath(const_cast<LPWSTR>(m_path.Ptr()));
 		}
 	}
+	SfxCreateDirectoryPath(const_cast<LPWSTR>(m_path.Ptr()));
 	EnumResourceNamesW(m_hRsrcModule, RT_RCDATA, SfxEnumResNameProc, reinterpret_cast<LONG_PTR>(this));
 	if (m_hUpdate)
 	{
@@ -533,6 +587,20 @@ HRESULT CSfxExtractEngine::get_VersionString(BSTR bsKey, BSTR *pbsValue)
 HRESULT CSfxExtractEngine::put_Password(BSTR bsPassword)
 {
 	SysReAllocString(&m_password, bsPassword);
+	return S_OK;
+}
+
+HRESULT CSfxExtractEngine::FindIcon(BSTR bsPath, BSTR bsName, BSTR *pbsLink)
+{
+	if (HMODULE hModule = LoadLibraryEx(bsPath, NULL, LOAD_LIBRARY_AS_DATAFILE))
+	{
+		int iIcon = FindResIndex(hModule, RT_GROUP_ICON, bsName);
+		WCHAR path[MAX_PATH + 40];
+		wsprintfW(path, L"%s,%d", bsPath, iIcon);
+		SysReAllocString(pbsLink, path);
+		if ((reinterpret_cast<UINT_PTR>(hModule) & 1) == 0)
+			FreeLibrary(hModule);
+	}
 	return S_OK;
 }
 
@@ -576,30 +644,6 @@ int CSfxExtractEngine::GetOverwriteMode( LPCWSTR lpwszPath, FILETIME * fileTime 
 	// OverwriteMode: none or confirm
 	return SFX_OM_SKIP;
 }
-
-class ScaleFeatures : public UString
-{
-public:
-	ScaleFeatures(UString const &features, int by) : UString(features)
-	{
-		int i = 0;
-		while ((i = Find(L':', i) + 1) != 0)
-		{
-			LPCWSTR s = Ptr(i);
-			LPWSTR t = NULL;
-			int val = wcstol(s, &t, 10);
-			if (t > s && t[0] == L'p' && t[1] == L'x')
-			{
-				val = MulDiv(val, by, 100);
-				WCHAR buf[12];
-				_itow(val, buf, 10);
-				Delete(i, static_cast<unsigned>(t - s));
-				Insert(i, buf);
-			}
-		}
-	}
-	LPWSTR Get() { return const_cast<LPWSTR>(Ptr()); }
-};
 
 HRESULT CSfxExtractEngine::HtmlExtractDialog()
 {

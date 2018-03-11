@@ -38,6 +38,8 @@ interface I7zSfxHtmHost : IDispatch
 	HRESULT VersionString([in] BSTR bsKey, [out, retval] BSTR *pbsValue);
 	[id(10), propput]
 	HRESULT Password([in] BSTR bsPassword);
+	[id(11)]
+	HRESULT FindIcon([in] BSTR bsPath, [in] BSTR bsName, [out, retval] BSTR *pbsLink);
 };
 
 [
