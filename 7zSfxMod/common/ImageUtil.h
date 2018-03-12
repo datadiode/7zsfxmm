@@ -23,6 +23,8 @@ struct DllImport {
 	P operator *() const { return reinterpret_cast<P>(p); }
 };
 
+STDAPI_(HMODULE) LoadResLibrary(LPCWSTR path);
+
 STDAPI ClearSearchPath();
 
 STDAPI CreateImage(LPCWSTR src, LPCWSTR dst, DWORD how, DWORD img, DWORD osv);

@@ -592,14 +592,12 @@ HRESULT CSfxExtractEngine::put_Password(BSTR bsPassword)
 
 HRESULT CSfxExtractEngine::FindIcon(BSTR bsPath, BSTR bsName, BSTR *pbsLink)
 {
-	if (HMODULE hModule = LoadLibraryEx(bsPath, NULL, LOAD_LIBRARY_AS_DATAFILE))
+	if (HMODULE hModule = LoadResLibrary(bsPath))
 	{
 		int iIcon = FindResIndex(hModule, RT_GROUP_ICON, bsName);
 		WCHAR path[MAX_PATH + 40];
 		wsprintfW(path, L"%s,%d", bsPath, iIcon);
 		SysReAllocString(pbsLink, path);
-		if ((reinterpret_cast<UINT_PTR>(hModule) & 1) == 0)
-			FreeLibrary(hModule);
 	}
 	return S_OK;
 }

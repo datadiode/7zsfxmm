@@ -28,6 +28,14 @@ struct KERNEL32 {
 	KERNEL32.DLL("SetDefaultDllDirectories"),
 };
 
+STDAPI_(HMODULE) LoadResLibrary(LPCWSTR path)
+{
+	HMODULE hModule = GetModuleHandle(path);
+	if (hModule == NULL)
+		hModule = LoadLibraryEx(path, NULL, DONT_RESOLVE_DLL_REFERENCES);
+	return hModule;
+}
+
 STDAPI ClearSearchPath()
 {
 	HRESULT hr = SetEnvironmentVariableW(L"PATH", NULL) ? S_OK : S_FALSE;
