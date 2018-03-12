@@ -104,61 +104,64 @@ public:
 		, taskicon(true)
 		, verify(true)
 		, visible(true)
-	{ }
+	{
+		buf[0] = L'\0';
+	}
 	void Parse(LPCWSTR features)
 	{
 		if (features)
 		{
-			while (LPCWSTR p = StrChrW(features, L':'))
+			// Be sure to have a semicolon in between feature sequences
+			if (len > 0 && buf[len - 1] != L':')
+				append(L";", 1);
+			while (LPCWSTR const colon = StrChrW(features, L':'))
 			{
-				p += StrSpnW(++p, L" \t\r\n");
-				if (LPCWSTR q = IsKeyword(features, p, L"zoom"))
+				LPCWSTR p = colon + 1;
+				LPCWSTR q = StrChrW(p += StrSpnW(p, L" \t\r\n"), L';');
+				if (q) ++q;
+				if (LPCWSTR r = IsKeyword(features, colon, L"zoom"))
 				{
-					append(features, q - features);
-					q = StrChrW(p, L';');
+					append(features, r - features);
 					pctzoom = MulDiv(pctzoom, StrToIntW(p), 100);
-					p = q ? q + 1 : L"";
+					p = q;
 				}
-				else if (LPCWSTR q = IsKeyword(features, p, L"taskicon"))
+				else if (LPCWSTR r = IsKeyword(features, colon, L"taskicon"))
 				{
-					append(features, q - features);
-					q = StrChrW(p, L';');
+					append(features, r - features);
 					taskicon = IsYesKeyword(p, q);
-					p = q ? q + 1 : L"";
+					p = q;
 				}
-				else if (LPCWSTR q = IsKeyword(features, p, L"verify"))
+				else if (LPCWSTR r = IsKeyword(features, colon, L"verify"))
 				{
-					append(features, q - features);
-					q = StrChrW(p, L';');
+					append(features, r - features);
 					verify = IsYesKeyword(p, q);
-					p = q ? q + 1 : L"";
+					p = q;
 				}
-				else if (LPCWSTR q = IsKeyword(features, p, L"visible"))
+				else if (LPCWSTR r = IsKeyword(features, colon, L"visible"))
 				{
-					append(features, q - features);
-					q = StrChrW(p, L';');
+					append(features, r - features);
 					visible = IsYesKeyword(p, q);
-					p = q ? q + 1 : L"";
+					p = q;
 				}
 				else
 				{
 					append(features, p - features);
 					if (int val = StrToIntW(p))
 					{
-						if (LPCWSTR q = StrRStrIW(p, StrChrW(p, L';'), L"px"))
+						if (LPCWSTR r = StrRStrIW(p, q, L"px"))
 						{
 							val = MulDiv(val, pctzoom, 100);
 							WCHAR buf[12];
 							append(buf, wsprintfW(buf, L"%d", val));
-							p = q;
+							p = r;
 						}
 					}
 				}
-				features = p;
+				features = p ? p : L"";
 			}
 			append(features, lstrlenW(features));
+			buf[len] = L'\0';
 		}
-		buf[len] = L'\0';
 	}
 	LPWSTR Get() { return buf; }
 };
