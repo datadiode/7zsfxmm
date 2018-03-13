@@ -2,7 +2,7 @@
 /* File:        ExtractEngine.h                                              */
 /* Created:     Wed, 05 Oct 2005 17:35:00 GMT                                */
 /*              by Oleg N. Scherbakov, mailto:oleg@7zsfx.info                */
-/* Last update: Wed, 07 Mar 2018 by https://github.com/datadiode             */
+/* Last update: 2018-03-13 by https://github.com/datadiode                   */
 /*---------------------------------------------------------------------------*/
 #ifndef _EXTRACTENGINE_H_INCLUDED_
 #define _EXTRACTENGINE_H_INCLUDED_
@@ -83,6 +83,8 @@ public:
 		switch (lEvent)
 		{
 		case BEHAVIOREVENT_DOCUMENTREADY:
+			m_ready = true;
+			m_hExtractWindow = NULL;
 			if (m_spOleWindow)
 			{
 				m_spOleWindow->GetWindow(&m_hExtractWindow);
@@ -143,6 +145,7 @@ public:
 	CSfxExtractEngine(HINSTANCE hRsrcModule)
 		: m_pVersionStrings(CVersionData::Load(hRsrcModule)->Find(L"StringFileInfo")->First())
 		, m_outFileStreamSpec(NULL)
+		, m_ready(false)
 		, m_hRsrcModule(hRsrcModule)
 		, m_hExtractWindow(NULL)
 		, m_hExtractThread(NULL)
@@ -200,6 +203,7 @@ private:
 	COutFileStream *		m_outFileStreamSpec;
 	CMyComPtr<ISequentialOutStream> m_outFileStream;
 	UString					m_diskFilePath;
+	bool					m_ready;
 	HINSTANCE				m_hRsrcModule;
 	HWND					m_hExtractWindow;
 	HANDLE					m_hExtractThread;

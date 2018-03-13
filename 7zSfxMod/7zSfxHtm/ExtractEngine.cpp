@@ -2,7 +2,7 @@
 /* File:        ExtractEngine.cpp                                            */
 /* Created:     Wed, 05 Oct 2005 07:36:00 GMT                                */
 /*              by Oleg N. Scherbakov, mailto:oleg@7zsfx.info                */
-/* Last update: Thu, 10 Mar 2018 by https://github.com/datadiode             */
+/* Last update: 2018-03-13 by https://github.com/datadiode                   */
 /*---------------------------------------------------------------------------*/
 #include "stdafx.h"
 #include <urlmon.h>
@@ -312,6 +312,14 @@ STDMETHODIMP CSfxExtractEngine::FindBehavior(BSTR bstrBehavior, BSTR bstrBehavio
 	{
 		if (IsSubString(bstrBehavior, L"Host") == pwszBehaviorParams)
 		{
+			// Release interfaces acquired from preliminary dialog instance
+			m_spDialog.Release();
+			m_spWindow2.Release();
+			m_spDocument2.Release();
+			m_spOleWindow.Release();
+			m_spElement3.Release();
+			m_spElement.Release();
+			// Acquire interfaces from calling dialog instance
 			SafeInvoke(pSite)->GetElement(&m_spElement);
 			CMyComPtr<IDispatch> spDispatch;
 			SafeInvoke(m_spElement)->QueryInterface(&m_spElement3);
@@ -322,21 +330,12 @@ STDMETHODIMP CSfxExtractEngine::FindBehavior(BSTR bstrBehavior, BSTR bstrBehavio
 			spDispatch.Release();
 			SafeInvoke(m_spWindow2)->get_external(&spDispatch);
 			SafeInvoke(spDispatch)->QueryInterface(&m_spDialog);
-			if (*pwszBehaviorParams++)
+			// If caller wants different features, save them and close
+			if (*pwszBehaviorParams++ &&
+				m_features.Compare(pwszBehaviorParams) != 0)
 			{
-				if (m_features.Compare(pwszBehaviorParams) != 0)
-				{
-					m_features = pwszBehaviorParams;
-					m_spWindow2->close();
-					m_spDialog.Release();
-					m_spWindow2.Release();
-					m_spDocument2.Release();
-					m_spOleWindow.Release();
-					m_spElement3.Release();
-					m_spElement.Release();
-					return S_OK;
-				}
-				m_features.Empty();
+				m_features = pwszBehaviorParams;
+				m_spWindow2->close();
 			}
 			return QueryInterface(IID_IElementBehavior, (void **)ppBehavior);
 		}
@@ -653,10 +652,8 @@ HRESULT CSfxExtractEngine::HtmlExtractDialog()
 		MSHTML.DLL("ShowHTMLDialogEx"),
 	};
 
-	TCHAR url[MAX_PATH + 40];
-	wsprintf(url, TEXT("res://%s//#1"), m_sfxpath.Ptr());
-
-	DWORD flags = HTMLDLG_MODAL | HTMLDLG_VERIFY | HTMLDLG_NOUI;
+	WCHAR url[MAX_PATH + 40];
+	wsprintf(url, L"res://%s/#1", m_sfxpath.Ptr());
 
 	IMoniker *moniker = NULL;
 	HRESULT hr = CreateURLMoniker(NULL, url, &moniker);
@@ -665,7 +662,9 @@ HRESULT CSfxExtractEngine::HtmlExtractDialog()
 		VARIANT in, out;
 		InitVariantFromDispatch(this, &in);
 		VariantInit(&out);
-		do 
+		m_ready = false;
+		DWORD flags = HTMLDLG_MODAL | HTMLDLG_VERIFY | HTMLDLG_NOUI;
+		do
 		{
 			if (FAILED(hr = (*MSHTML.ShowHTMLDialogEx)(NULL, moniker, flags, &in, ScaleFeatures(m_features, m_pctzoom).Get(), &out)))
 				break;
@@ -673,7 +672,7 @@ HRESULT CSfxExtractEngine::HtmlExtractDialog()
 				break;
 			hr = V_I4(&out);
 			flags = HTMLDLG_MODAL | HTMLDLG_VERIFY;
-		} while (!m_features.IsEmpty());
+		} while (!m_ready && !m_features.IsEmpty());
 		VariantClear(&in);
 		VariantClear(&out);
 		moniker->Release();

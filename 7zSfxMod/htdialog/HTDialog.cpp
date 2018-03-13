@@ -224,6 +224,7 @@ public:
 		: m_cmdline(GetCommandLineW())
 		, m_hModule(GetModuleHandle(NULL))
 		, m_hWnd(NULL)
+		, m_ready(false)
 		, m_uCustomIcons(0)
 		, m_pctzoom(100)
 	{
@@ -264,7 +265,7 @@ public:
 		WCHAR url[1024];
 		if (PathIsRelativeW(argv[1]) && FindResourceW(m_hModule, argv[1], RT_HTML))
 		{
-			wsprintfW(url, L"res://%s//%s", PathFindFileNameW(path), argv[1]);
+			wsprintfW(url, L"res://%s/%s", PathFindFileNameW(path), argv[1]);
 			argv[1] = url;
 		}
 
@@ -276,6 +277,7 @@ public:
 			InitVariantFromDispatch(this, &in);
 			VariantInit(&out);
 			HWND owner = NULL;
+			m_ready = false;
 			DWORD flags = HTMLDLG_MODAL | HTMLDLG_VERIFY | HTMLDLG_NOUI;
 			do 
 			{
@@ -295,7 +297,7 @@ public:
 					break;
 				hr = V_I4(&out);
 				flags &= ~HTMLDLG_NOUI;
-			} while (SysStringLen(m_features) != 0);
+			} while (!m_ready && SysStringLen(m_features) != 0);
 			VariantClear(&in);
 			VariantClear(&out);
 			moniker->Release();
@@ -384,6 +386,7 @@ public:
 		switch (lEvent)
 		{
 		case BEHAVIOREVENT_DOCUMENTREADY:
+			m_ready = true;
 			m_hWnd = NULL;
 			m_spPropertyStore.Release();
 			if (m_spOleWindow)
@@ -430,25 +433,24 @@ public:
 		{
 			if (EatPrefix(bstrBehavior, L"Host") == pwszBehaviorParams)
 			{
-				pSite->GetElement(&m_spElement);
+				// Release interfaces acquired from preliminary dialog instance
+				m_spWindow2.Release();
+				m_spDocument2.Release();
+				m_spOleWindow.Release();
+				m_spElement.Release();
+				// Acquire interfaces from calling dialog instance
+				SafeInvoke(pSite)->GetElement(&m_spElement);
 				AutoReleasePtr<IDispatch> spDispatch;
-				m_spElement->get_document(&spDispatch);
-				spDispatch->QueryInterface(&m_spOleWindow);
-				spDispatch->QueryInterface(&m_spDocument2);
-				m_spDocument2->get_parentWindow(&m_spWindow2);
-				if (*pwszBehaviorParams++)
+				SafeInvoke(m_spElement)->get_document(&spDispatch);
+				SafeInvoke(spDispatch)->QueryInterface(&m_spOleWindow);
+				SafeInvoke(spDispatch)->QueryInterface(&m_spDocument2);
+				SafeInvoke(m_spDocument2)->get_parentWindow(&m_spWindow2);
+				// If caller wants different features, remember them and close
+				if (*pwszBehaviorParams++ &&
+					lstrcmpW(m_features, pwszBehaviorParams) != 0)
 				{
-					if (lstrcmpW(m_features, pwszBehaviorParams) != 0)
-					{
-						SysReAllocString(&m_features, pwszBehaviorParams);
-						m_spWindow2->close();
-						m_spWindow2.Release();
-						m_spDocument2.Release();
-						m_spOleWindow.Release();
-						m_spElement.Release();
-						return S_OK;
-					}
-					SysReAllocString(&m_features, NULL);
+					SysReAllocString(&m_features, pwszBehaviorParams);
+					m_spWindow2->close();
 				}
 				return QueryInterface(IID_IElementBehavior, (void **)ppBehavior);
 			}
@@ -511,6 +513,7 @@ private:
 	LPCWSTR const					m_cmdline;
 	HMODULE const					m_hModule;
 	HWND							m_hWnd;
+	bool							m_ready;
 	UINT							m_uCustomIcons;
 	int								m_pctzoom;
 	SHFILEINFOW						m_icon;
