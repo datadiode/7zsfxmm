@@ -391,4 +391,9 @@
   <ItemGroup>
     <Manifest Include="7zSfxHtm\res\7zSfxHtm.manifest" />
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\.git\FETCH_HEAD">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
 </Project>

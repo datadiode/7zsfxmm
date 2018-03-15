@@ -783,8 +783,8 @@ void CSfxExtractEngine::AboutBox()
 #ifdef SFX_VOLUMES
 	ustrVersion += L"Volumes, ";
 #endif // SFX_VOLUMES
-	WCHAR tmp[128];
-	wsprintf( tmp, L"%04X\n", SFXBUILD_OPTIONS2 );
+	WCHAR tmp[256];
+	wsprintf( tmp, L"%04X\n\n%.7hs branch %hs of %hs", SFXBUILD_OPTIONS2, BUILD_GIT_SHA, BUILD_GIT_BRANCH, BUILD_GIT_URL);
 	ustrVersion += tmp;
 	MsgBox( ustrVersion, GetLanguageString(STR_TITLE), MB_ICONINFORMATION );
 }
