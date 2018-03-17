@@ -8,6 +8,7 @@
 // Articles on the subject:
 // https://textslashplain.com/2015/12/18/dll-hijacking-just-wont-die/
 // https://unhandledexpression.com/2010/08/23/fixing-the-dll-loading-vulnerability/
+// http://seclists.org/fulldisclosure/2015/Nov/101
 // SumatraPDF's SafeLoadLibrary() happens to work like DllHandle::Load():
 // https://github.com/sumatrapdfreader/sumatrapdf/blob/master/src/utils/WinDynCalls.cpp
 
@@ -43,6 +44,11 @@ STDAPI ClearSearchPath()
 		(*KERNEL32.SetDllDirectoryW)(L"") ? S_OK : S_FALSE;
 	hr |= *KERNEL32.SetDefaultDllDirectories &&
 		(*KERNEL32.SetDefaultDllDirectories)(KERNEL32.LOAD_LIBRARY_SEARCH_SYSTEM32) ? S_OK : S_FALSE;
+	// Preload VERSION.DLL because above measures don't help with URLMON.DLL.
+	// I suspect this is due to the api-ms-win-downlevel-* thing, which might
+	// somehow defeat the intended effect of SetDefaultDllDirectories() when
+	// the DLL in question is not listed under KnownDlls.
+	hr |= DllHandle::Load(L"VERSION") ? S_OK : S_FALSE;
 	return hr;
 }
 

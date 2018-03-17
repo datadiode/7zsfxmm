@@ -266,13 +266,13 @@ STDMETHODIMP CSfxExtractEngine::GetStream( UInt32 index, ISequentialOutStream **
 	case SFX_OM_SKIP:
 		return S_OK;
 	case SFX_OM_ERROR:
-		return SayInternalError( SfxErrors::seOverwrite, ::GetLastError() );
+		return SayInternalError( SfxErrors::seOverwrite, GetLastError() );
 	}
 
 	m_outFileStreamSpec = new COutFileStream;
 	CMyComPtr<ISequentialOutStream> outStreamLoc(m_outFileStreamSpec);
 	if( m_outFileStreamSpec->Create( m_diskFilePath, true ) == false )
-		return SayInternalError( SfxErrors::seCreateFile, ::GetLastError() );
+		return SayInternalError( SfxErrors::seCreateFile, GetLastError() );
 	m_outFileStream = outStreamLoc;
 	*outStream = outStreamLoc.Detach();
 
@@ -569,7 +569,7 @@ int CSfxExtractEngine::DeleteUseOverwriteFlags( LPCWSTR lpwszPath )
 {
 	if( DeleteFileOrDirectoryAlways( lpwszPath ) == FALSE )
 	{
-		DWORD dwLastError = ::GetLastError();
+		DWORD dwLastError = GetLastError();
 		if( (dwLastError == ERROR_ACCESS_DENIED || dwLastError == ERROR_SHARING_VIOLATION)
 				&& (m_overwriteMode & OVERWRITE_FLAG_SKIP_LOCKED) != 0 )
 		{
@@ -665,14 +665,18 @@ HRESULT CSfxExtractEngine::Modal(DWORD flags)
 
 HRESULT CSfxExtractEngine::Extract()
 {
-	if( !m_archive.Open(NULL) )
-	{
-		SfxErrorDialog( 0, ERR_NON7Z_ARCHIVE );
-		return E_FAIL;
-	}
+	struct URLMON {
+		DllHandle DLL;
+		DllImport<HRESULT (STDAPICALLTYPE *)(LPMONIKER, LPCWSTR, LPMONIKER *)> CreateURLMoniker;
+	} const URLMON = {
+		DllHandle::Load(L"URLMON"),
+		URLMON.DLL("CreateURLMoniker"),
+	};
+	if (!*URLMON.CreateURLMoniker)
+		return HRESULT_FROM_WIN32(GetLastError());
 	WCHAR url[MAX_PATH + 40];
 	wsprintf(url, L"res://%s/#1", m_sfxpath.Ptr());
-	HRESULT hr = CreateURLMoniker(NULL, url, &m_spMoniker);
+	HRESULT hr = (*URLMON.CreateURLMoniker)(NULL, url, &m_spMoniker);
 	if (SUCCEEDED(hr))
 		hr = Modal(HTMLDLG_MODAL | HTMLDLG_VERIFY | HTMLDLG_NOUI);
 	return hr;
@@ -1183,16 +1187,20 @@ HRESULT CSfxExtractEngine::Run(LPWSTR lpCmdLine)
 	SetIndices(NULL, 0);
 #endif // _SFX_USE_EXTRACT_MASK
 	CMyComPtr<ITypeLib> spTypeLib;
-	if (SUCCEEDED(LoadTypeLib(path, &spTypeLib)))
-		spTypeLib->GetTypeInfoOfGuid(__uuidof(I7zSfxHtmHost), &m_spTypeInfo);
-
+	if (FAILED(hr = LoadTypeLib(path, &spTypeLib)))
+		return hr;
+	if (FAILED(hr = spTypeLib->GetTypeInfoOfGuid(__uuidof(I7zSfxHtmHost), &m_spTypeInfo)))
+		return hr;
 	if (!m_archive.Init(m_sfxpath))
 	{
 		DWORD status = GetLastError();
 		SfxErrorDialog(status, ERR_OPEN_ARCHIVE, m_sfxpath.Ptr());
 		return HRESULT_FROM_WIN32(status);
 	}
-
-	hr = Extract();
-	return hr;
+	if (!m_archive.Open(NULL))
+	{
+		SfxErrorDialog(0, ERR_NON7Z_ARCHIVE);
+		return E_FAIL;
+	}
+	return Extract();
 }

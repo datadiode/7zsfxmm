@@ -10,7 +10,7 @@ struct DllHandle {
 		WCHAR path[MAX_PATH];
 		GetSystemDirectoryW(path, _countof(path));
 		PathAppendW(path, name);
-		return LoadLibrary(path);
+		return LoadLibraryW(path);
 	}
 	FARPROC operator()(LPCSTR name) const {
 		return h ? GetProcAddress(h, name) : NULL;
