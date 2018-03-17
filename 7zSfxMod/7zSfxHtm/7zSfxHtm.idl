@@ -27,7 +27,7 @@ interface I7zSfxHtmHost : IDispatch
 	[id(5)]
 	HRESULT ExtractPayload([in] BSTR bsPath);
 	[id(6)]
-	HRESULT ExtractAdjunct([in] BSTR bsPath, [in, optional] BSTR bsFilter, [in, optional] BSTR bsType);
+	HRESULT ExtractAdjunct([in] BSTR bsPath, [in, optional] BSTR bsFilter);
 	[id(7), propput]
 	HRESULT OverwriteMode([in] LONG lOverwriteMode);
 	[id(7), propget]

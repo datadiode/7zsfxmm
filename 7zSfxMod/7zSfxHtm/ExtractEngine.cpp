@@ -10,7 +10,7 @@
 #include "../C/Lzma86.h"
 
 #include "ExtractEngine.h"
-#include "../../midl/7zSfxHtm_i.c"
+#include "../../midl/7zSfxHtm_i.c"		// Make MY_QUERYINTERFACE_ENTRY() happy
 
 using namespace NWindows;
 using NWindows::NFile::NIO::CInFile;
@@ -28,30 +28,6 @@ DECLARE_BSTR_CONSTANT(BSTR_onerror,		L"onerror");
 DECLARE_BSTR_CONSTANT(BSTR_prompt,		L"prompt");
 DECLARE_BSTR_CONSTANT(BSTR_buttons,		L"buttons");
 DECLARE_BSTR_CONSTANT(BSTR_title,		L"title");
-
-class ScaleFeatures : public UString
-{
-public:
-	ScaleFeatures(UString const &features, int by) : UString(features)
-	{
-		int i = 0;
-		while ((i = Find(L':', i) + 1) != 0)
-		{
-			LPCWSTR s = Ptr(i);
-			LPWSTR t = NULL;
-			int val = wcstol(s, &t, 10);
-			if (t > s && t[0] == L'p' && t[1] == L'x')
-			{
-				val = MulDiv(val, by, 100);
-				WCHAR buf[12];
-				_itow(val, buf, 10);
-				Delete(i, static_cast<unsigned>(t - s));
-				Insert(i, buf);
-			}
-		}
-	}
-	LPWSTR Get() { return const_cast<LPWSTR>(Ptr()); }
-};
 
 class FindResIndex
 {
@@ -312,14 +288,6 @@ STDMETHODIMP CSfxExtractEngine::FindBehavior(BSTR bstrBehavior, BSTR bstrBehavio
 	{
 		if (IsSubString(bstrBehavior, L"Host") == pwszBehaviorParams)
 		{
-			// Release interfaces acquired from preliminary dialog instance
-			m_spDialog.Release();
-			m_spWindow2.Release();
-			m_spDocument2.Release();
-			m_spOleWindow.Release();
-			m_spElement3.Release();
-			m_spElement.Release();
-			// Acquire interfaces from calling dialog instance
 			SafeInvoke(pSite)->GetElement(&m_spElement);
 			CMyComPtr<IDispatch> spDispatch;
 			SafeInvoke(m_spElement)->QueryInterface(&m_spElement3);
@@ -334,8 +302,15 @@ STDMETHODIMP CSfxExtractEngine::FindBehavior(BSTR bstrBehavior, BSTR bstrBehavio
 			if (*pwszBehaviorParams++ &&
 				m_features.Compare(pwszBehaviorParams) != 0)
 			{
+				// Release interfaces acquired from preliminary dialog instance
+				m_spDialog.Release();
+				m_spWindow2.Release();
+				m_spDocument2.Release();
+				m_spOleWindow.Release();
+				m_spElement3.Release();
+				m_spElement.Release();
 				m_features = pwszBehaviorParams;
-				m_spWindow2->close();
+				ExitProcess(Modal(HTMLDLG_MODAL | HTMLDLG_VERIFY));
 			}
 			return QueryInterface(IID_IElementBehavior, (void **)ppBehavior);
 		}
@@ -432,18 +407,9 @@ BOOL CALLBACK CSfxExtractEngine::SfxEnumResNameProc(HMODULE hModule, LPCWSTR lpT
 		}
 		else
 		{
-			lpType = pThis->m_rctype.Ptr();
-			switch (*lpType)
-			{
-			case L'\0':
-				lpType = PathFindExtensionW(lpName);
-				lpType = wcscmp(lpType, L".ICO") == 0 ? RT_GROUP_ICON :
-					wcscmp(lpType, L".MANIFEST") == 0 ? RT_MANIFEST : RT_HTML;
-				break;
-			case L'#':
-				lpType = MAKEINTATOM(FindAtomW(lpType));
-				break;
-			}
+			lpType = PathFindExtensionW(lpName);
+			lpType = wcscmp(lpType, L".ICO") == 0 ? RT_GROUP_ICON :
+				wcscmp(lpType, L".MANIFEST") == 0 ? RT_MANIFEST : RT_HTML;
 		}
 		if (lpType == RT_GROUP_ICON)
 		{
@@ -520,7 +486,6 @@ STDMETHODIMP CSfxExtractEngine::ExtractPayload(BSTR bsPath)
 	m_path = bsPath;
 	m_total = 0;
 	m_completed = 0;
-	m_choice = IDOK;
 	if (m_path.ReverseFind_PathSepar() + 1 < static_cast<int>(m_path.Len()))
 		m_path.Add_PathSepar();
 	if (m_hExtractThread)
@@ -529,11 +494,10 @@ STDMETHODIMP CSfxExtractEngine::ExtractPayload(BSTR bsPath)
 	return S_OK;
 }
 
-STDMETHODIMP CSfxExtractEngine::ExtractAdjunct(BSTR bsPath, BSTR bsFilter, BSTR bsType)
+STDMETHODIMP CSfxExtractEngine::ExtractAdjunct(BSTR bsPath, BSTR bsFilter)
 {
 	m_path = bsPath;
 	m_filter = bsFilter;
-	m_rctype = bsType;
 	m_iconid = 1;
 	m_hUpdate = NULL;
 	m_fDiscard = TRUE;
@@ -635,14 +599,14 @@ int CSfxExtractEngine::GetOverwriteMode( LPCWSTR lpwszPath, FILETIME * fileTime 
 	if( m_overwriteMode == OVERWRITE_MODE_OLDER )
 	{
 		if( CompareFileTime( &fd.ftLastWriteTime, fileTime ) >= 0 )
-				return SFX_OM_SKIP;
+			return SFX_OM_SKIP;
 		return DeleteUseOverwriteFlags( lpwszPath );
 	}
 	// OverwriteMode: none or confirm
 	return SFX_OM_SKIP;
 }
 
-HRESULT CSfxExtractEngine::HtmlExtractDialog()
+HRESULT CSfxExtractEngine::Modal(DWORD flags)
 {
 	struct MSHTML {
 		DllHandle DLL;
@@ -652,46 +616,19 @@ HRESULT CSfxExtractEngine::HtmlExtractDialog()
 		MSHTML.DLL("ShowHTMLDialogEx"),
 	};
 
-	WCHAR url[MAX_PATH + 40];
-	wsprintf(url, L"res://%s/#1", m_sfxpath.Ptr());
-
-	IMoniker *moniker = NULL;
-	HRESULT hr = CreateURLMoniker(NULL, url, &moniker);
-	if (SUCCEEDED(hr))
-	{
-		VARIANT in, out;
-		InitVariantFromDispatch(this, &in);
-		VariantInit(&out);
-		m_ready = false;
-		DWORD flags = HTMLDLG_MODAL | HTMLDLG_VERIFY | HTMLDLG_NOUI;
-		do
-		{
-			if (FAILED(hr = (*MSHTML.ShowHTMLDialogEx)(NULL, moniker, flags, &in, ScaleFeatures(m_features, m_pctzoom).Get(), &out)))
-				break;
-			if (FAILED(hr = VariantChangeType(&out, &out, 0, VT_I4)))
-				break;
-			hr = V_I4(&out);
-			flags = HTMLDLG_MODAL | HTMLDLG_VERIFY;
-		} while (!m_ready && !m_features.IsEmpty());
-		VariantClear(&in);
-		VariantClear(&out);
-		moniker->Release();
-	}
-
-	return hr;
-}
-
-HRESULT CSfxExtractEngine::Extract()
-{
-	if( !m_archive.Open(NULL) )
-	{
-		SfxErrorDialog( 0, ERR_NON7Z_ARCHIVE );
-		return E_FAIL;
-	}
-
 	m_ErrorCode = NArchive::NExtract::NOperationResult::kOK;
 
-	m_choice = HtmlExtractDialog();
+	VARIANT in, out;
+	InitVariantFromDispatch(this, &in);
+	VariantInit(&out);
+	HRESULT hr;
+	if (FAILED(hr = (*MSHTML.ShowHTMLDialogEx)(NULL, m_spMoniker, flags, &in, const_cast<LPWSTR>(m_features.Ptr()), &out)))
+		return hr;
+	if (FAILED(hr = VariantChangeType(&out, &out, 0, VT_I4)))
+		return hr;
+	hr = V_I4(&out);
+	VariantClear(&in);
+	VariantClear(&out);
 
 	if (m_hExtractThread != NULL)
 	{
@@ -724,6 +661,21 @@ HRESULT CSfxExtractEngine::Extract()
 		return E_FAIL;
 	}
 	return S_OK;
+}
+
+HRESULT CSfxExtractEngine::Extract()
+{
+	if( !m_archive.Open(NULL) )
+	{
+		SfxErrorDialog( 0, ERR_NON7Z_ARCHIVE );
+		return E_FAIL;
+	}
+	WCHAR url[MAX_PATH + 40];
+	wsprintf(url, L"res://%s/#1", m_sfxpath.Ptr());
+	HRESULT hr = CreateURLMoniker(NULL, url, &m_spMoniker);
+	if (SUCCEEDED(hr))
+		hr = Modal(HTMLDLG_MODAL | HTMLDLG_VERIFY | HTMLDLG_NOUI);
+	return hr;
 }
 
 HRESULT CSfxExtractEngine::ExtractWorker()
@@ -784,7 +736,7 @@ void CSfxExtractEngine::AboutBox()
 	ustrVersion += L"Volumes, ";
 #endif // SFX_VOLUMES
 	WCHAR tmp[256];
-	wsprintf( tmp, L"%04X\n\n%.7hs branch %hs of %hs", SFXBUILD_OPTIONS2, BUILD_GIT_SHA, BUILD_GIT_BRANCH, BUILD_GIT_URL);
+	wsprintf( tmp, L"%04X\n\n%07x branch %hs of %hs", SFXBUILD_OPTIONS2, BUILD_GIT_HEX, BUILD_GIT_BRANCH, BUILD_GIT_URL);
 	ustrVersion += tmp;
 	MsgBox( ustrVersion, GetLanguageString(STR_TITLE), MB_ICONINFORMATION );
 }

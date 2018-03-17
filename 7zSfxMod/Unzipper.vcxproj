@@ -110,6 +110,15 @@
   <ItemGroup>
     <ClInclude Include="unzipper\miniz.h" />
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\.git\FETCH_HEAD">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
+    </CustomBuild>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

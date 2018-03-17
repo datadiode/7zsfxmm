@@ -35,7 +35,7 @@ namespace SfxErrors
 	};
 }
 
-int GetUIZoomFactor();
+void SetDpiAwareness();
 
 BOOL SfxCreateDirectory( LPCWSTR );
 LPCWSTR SfxCreateDirectoryPath( LPWSTR, LPCWSTR = NULL );

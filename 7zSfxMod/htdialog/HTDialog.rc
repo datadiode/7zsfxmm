@@ -16,8 +16,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // Version Information resources
 //
 VS_VERSION_INFO VERSIONINFO
-    FILEVERSION     1,2,0,0
-    PRODUCTVERSION  1,2,0,0
+    FILEVERSION     1,3,0,0
+    PRODUCTVERSION  1,3,0,0
     FILEOS          VOS_NT_WINDOWS32
     FILETYPE        VFT_DLL
     FILESUBTYPE     VFT2_UNKNOWN
@@ -31,12 +31,12 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "Comments", "Freeware"
             VALUE "CompanyName", "Jochen Neubeck"
             VALUE "FileDescription", "HTDialog"
-            VALUE "FileVersion", "1.2"
+            VALUE "FileVersion", "1.3"
             VALUE "InternalName", "HTDialog"
             VALUE "LegalCopyright", "© 2018 Jochen Neubeck"
             VALUE "OriginalFilename", "htdialog.exe"
             VALUE "ProductName", "HTDialog"
-            VALUE "ProductVersion", "1.2"
+            VALUE "ProductVersion", "1.3"
         }
     }
     BLOCK "VarFileInfo"

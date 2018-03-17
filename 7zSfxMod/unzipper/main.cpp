@@ -2,6 +2,7 @@
 #include <shlwapi.h>
 #include <wininet.h>
 #include <process.h>
+#include "../../midl/FETCH_HEAD.h"
 
 // https://www.rpi.edu/dept/cis/software/g77-mingw32/include/
 
@@ -282,3 +283,17 @@ EXTERN_C int WINAPI MyStartup()
     __security_init_cookie();
     ExitProcess(Run(GetCommandLineW()));
 }
+
+#ifdef _WIN64
+#	define __cdecl(name) #name
+#	define __stdcall(name, bytes) #name
+#	pragma comment(linker, "/SUBSYSTEM:WINDOWS,5.2") // Windows XP 64-Bit
+#else
+#	define __cdecl(name) "_" #name
+#	define __stdcall(name, bytes) "_" #name "@" #bytes
+#	pragma comment(linker, "/SUBSYSTEM:WINDOWS,5.0") // Windows 2000
+#endif
+
+// Create an otherwise irrelevant EAT entry to identify the commit version
+extern "C" int const build_git_rev = BUILD_GIT_REV;
+#pragma comment(linker, "/EXPORT:" BUILD_GIT_BRANCH BUILD_GIT_SHA "=" __cdecl(build_git_rev))

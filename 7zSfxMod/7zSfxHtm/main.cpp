@@ -109,9 +109,11 @@ EXTERN_C BOOL WINAPI HybridCRTStartup(HINSTANCE hinstDLL, DWORD dwReason, LPVOID
 }
 
 #ifdef _WIN64
+#	define __cdecl(name) #name
 #	define __stdcall(name, bytes) #name
 #	pragma comment(linker, "/SUBSYSTEM:WINDOWS,5.2") // Windows XP 64-Bit
 #else
+#	define __cdecl(name) "_" #name
 #	define __stdcall(name, bytes) "_" #name "@" #bytes
 #	pragma comment(linker, "/SUBSYSTEM:WINDOWS,5.0") // Windows 2000
 #endif
@@ -119,3 +121,7 @@ EXTERN_C BOOL WINAPI HybridCRTStartup(HINSTANCE hinstDLL, DWORD dwReason, LPVOID
 #pragma comment(linker, "/ENTRY:HybridCRTStartup")
 #pragma comment(linker, "/EXPORT:EntryPointW="	__stdcall(EntryPointW,	16))
 #pragma comment(linker, "/EXPORT:CPlApplet="	__stdcall(CPlApplet,	16))
+
+// Create an otherwise irrelevant EAT entry to identify the commit version
+extern "C" int const build_git_rev = BUILD_GIT_REV;
+#pragma comment(linker, "/EXPORT:" BUILD_GIT_BRANCH BUILD_GIT_SHA "=" __cdecl(build_git_rev))

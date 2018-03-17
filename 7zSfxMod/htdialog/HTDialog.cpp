@@ -13,6 +13,7 @@
 #include <mshtmhst.h>
 #include "../common/ImageUtil.h"
 #include "../../midl/HTDialog_h.h"
+#include "../../midl/FETCH_HEAD.h"
 
 typedef bool Assert;
 
@@ -21,7 +22,7 @@ typedef bool Assert;
 
 #define SafeInvoke(p) if (p) p
 
-static int GetUIZoomFactor()
+static void SetDpiAwareness()
 {
 	struct SHCORE {
 		enum ProcessDpiAwareness {
@@ -38,14 +39,6 @@ static int GetUIZoomFactor()
 
 	if (*SHCORE.SetProcessDpiAwareness)
 		(*SHCORE.SetProcessDpiAwareness)(SHCORE.ProcessSystemDpiAware);
-
-	int zoom = 100;
-	if (HDC hdc = GetDC(NULL))
-	{
-		zoom = MulDiv(GetDeviceCaps(hdc, LOGPIXELSX), 100, 96);
-		ReleaseDC(NULL, hdc);
-	}
-	return zoom;
 }
 
 static HWND CreateHiddenOwner()
@@ -91,17 +84,25 @@ class ScaleFeatures
 	{
 		return StrRStrIW(p, q, L"yes") || StrRStrIW(p, q, L"1") || StrRStrIW(p, q, L"on");
 	}
+	static LPCWSTR IsMeasurementUnit(LPCWSTR p, LPCWSTR q)
+	{
+		static WCHAR const unit[][3] = { L"cm", L"mm", L"in", L"pt", L"pc", L"em", L"ex", L"px" };
+		for (int i = 0; i < _countof(unit); ++i)
+			if (LPCWSTR r = StrRStrIW(p, q, unit[i]))
+				return r;
+		return NULL;
+	}
 
 public:
 	int pctzoom;
-	bool taskicon;
+	HWND owner;
 	bool verify;
 	bool visible;
 
-	ScaleFeatures(int by)
+	ScaleFeatures()
 		: len(0)
-		, pctzoom(by)
-		, taskicon(true)
+		, pctzoom(100)
+		, owner(NULL)
 		, verify(true)
 		, visible(true)
 	{
@@ -121,38 +122,38 @@ public:
 				if (q) ++q;
 				if (LPCWSTR r = IsKeyword(features, colon, L"zoom"))
 				{
-					append(features, r - features);
+					append(features, static_cast<int>(r - features));
 					pctzoom = MulDiv(pctzoom, StrToIntW(p), 100);
 					p = q;
 				}
 				else if (LPCWSTR r = IsKeyword(features, colon, L"taskicon"))
 				{
-					append(features, r - features);
-					taskicon = IsYesKeyword(p, q);
+					append(features, static_cast<int>(r - features));
+					if (!IsYesKeyword(p, q) && owner == NULL)
+						owner = CreateHiddenOwner();
 					p = q;
 				}
 				else if (LPCWSTR r = IsKeyword(features, colon, L"verify"))
 				{
-					append(features, r - features);
+					append(features, static_cast<int>(r - features));
 					verify = IsYesKeyword(p, q);
 					p = q;
 				}
 				else if (LPCWSTR r = IsKeyword(features, colon, L"visible"))
 				{
-					append(features, r - features);
+					append(features, static_cast<int>(r - features));
 					visible = IsYesKeyword(p, q);
 					p = q;
 				}
 				else
 				{
-					append(features, p - features);
+					append(features, static_cast<int>(p - features));
 					if (int val = StrToIntW(p))
 					{
-						if (LPCWSTR r = StrRStrIW(p, q, L"px"))
+						if (LPCWSTR r = IsMeasurementUnit(p, q))
 						{
-							val = MulDiv(val, pctzoom, 100);
-							WCHAR buf[12];
-							append(buf, wsprintfW(buf, L"%d", val));
+							WCHAR buf[40];
+							append(buf, wsprintfW(buf, L"%de-2", val * pctzoom));
 							p = r;
 						}
 					}
@@ -163,7 +164,7 @@ public:
 			buf[len] = L'\0';
 		}
 	}
-	LPWSTR Get() { return buf; }
+	operator LPWSTR() { return buf; }
 };
 
 class FindResIndex
@@ -224,24 +225,44 @@ public:
 		: m_cmdline(GetCommandLineW())
 		, m_hModule(GetModuleHandle(NULL))
 		, m_hWnd(NULL)
-		, m_ready(false)
 		, m_uCustomIcons(0)
-		, m_pctzoom(100)
 	{
 		SecureZeroMemory(&m_icon, sizeof m_icon);
+		SetDpiAwareness();
+	}
+	HRESULT Modal(DWORD flags)
+	{
+		VARIANT in, out;
+		InitVariantFromDispatch(this, &in);
+		VariantInit(&out);
+		if (!m_scaleFeatures.verify)
+			flags &= ~HTMLDLG_VERIFY;
+		if (!m_scaleFeatures.visible)
+			flags |= HTMLDLG_NOUI;
+		HRESULT hr;
+		if (FAILED(hr = (*MSHTML.ShowHTMLDialogEx)(m_scaleFeatures.owner, m_spMoniker, flags, &in, m_scaleFeatures, &out)))
+			return hr;
+		if (FAILED(hr = VariantChangeType(&out, &out, 0, VT_I4)))
+			return hr;
+		hr = V_I4(&out);
+		flags &= ~HTMLDLG_NOUI;
+		VariantClear(&in);
+		VariantClear(&out);
+		return hr;
 	}
 	HRESULT Run()
 	{
 		WCHAR path[MAX_PATH];
 		GetModuleFileNameW(m_hModule, path, _countof(path));
 		AutoReleasePtr<ITypeLib> spTypeLib;
-		if (SUCCEEDED(LoadTypeLib(path, &spTypeLib)))
-			spTypeLib->GetTypeInfoOfGuid(__uuidof(IHTDialogHost), &m_spTypeInfo);
+		HRESULT hr;
+		if (FAILED(hr = LoadTypeLib(path, &spTypeLib)))
+			return hr;
+		if (FAILED(hr = spTypeLib->GetTypeInfoOfGuid(__uuidof(IHTDialogHost), &m_spTypeInfo)))
+			return hr;
 
 		int argc = 0;
 		LPWSTR argv[2] = { NULL, NULL };
-		LPWSTR features = NULL;
-		int const pctzoom = GetUIZoomFactor();
 		AutoBSTR cmdline = SysAllocString(m_cmdline);
 		LPWSTR p = cmdline;
 		do
@@ -253,11 +274,14 @@ public:
 			if (*p != L'/')
 				PathUnquoteSpacesW(argv[argc++] = p);
 			else if ((r = EatPrefix(t, L"features:")) != NULL)
-				PathUnquoteSpacesW(features = r);
+			{
+				PathUnquoteSpacesW(r);
+				m_scaleFeatures.Parse(r);
+			}
 			else
 				break;
 			p = q + StrSpnW(q, L" \t\r\n");
-		} while (*p != TEXT('\0') && argc < _countof(argv));
+		} while (*p != L'\0' && argc < _countof(argv));
 
 		if (argv[1] == NULL)
 			argv[1] = L"#1";
@@ -268,41 +292,10 @@ public:
 			wsprintfW(url, L"res://%s/%s", PathFindFileNameW(path), argv[1]);
 			argv[1] = url;
 		}
+		if (FAILED(hr = CreateURLMoniker(NULL, argv[1], &m_spMoniker)))
+			return hr;
 
-		IMoniker *moniker = NULL;
-		HRESULT hr = CreateURLMoniker(NULL, argv[1], &moniker);
-		if (SUCCEEDED(hr))
-		{
-			VARIANT in, out;
-			InitVariantFromDispatch(this, &in);
-			VariantInit(&out);
-			HWND owner = NULL;
-			m_ready = false;
-			DWORD flags = HTMLDLG_MODAL | HTMLDLG_VERIFY | HTMLDLG_NOUI;
-			do 
-			{
-				ScaleFeatures f(pctzoom);
-				f.Parse(features);
-				f.Parse(m_features);
-				m_pctzoom = f.pctzoom;
-				if (!f.verify)
-					flags &= ~HTMLDLG_VERIFY;
-				if (!f.visible)
-					flags |= HTMLDLG_NOUI;
-				if (!f.taskicon && owner == NULL)
-					owner = CreateHiddenOwner();
-				if (FAILED(hr = (*MSHTML.ShowHTMLDialogEx)(owner, moniker, flags, &in, f.Get(), &out)))
-					break;
-				if (FAILED(hr = VariantChangeType(&out, &out, 0, VT_I4)))
-					break;
-				hr = V_I4(&out);
-				flags &= ~HTMLDLG_NOUI;
-			} while (!m_ready && SysStringLen(m_features) != 0);
-			VariantClear(&in);
-			VariantClear(&out);
-			moniker->Release();
-		}
-		return hr;
+		return Modal(HTMLDLG_MODAL | HTMLDLG_VERIFY | HTMLDLG_NOUI);
 	}
 	HICON LoadShellIcon(LPWSTR path, UINT flags)
 	{
@@ -386,14 +379,13 @@ public:
 		switch (lEvent)
 		{
 		case BEHAVIOREVENT_DOCUMENTREADY:
-			m_ready = true;
 			m_hWnd = NULL;
 			m_spPropertyStore.Release();
 			if (m_spOleWindow)
 			{
 				m_spOleWindow->GetWindow(&m_hWnd);
-				while (HWND hWnd = GetParent(m_hWnd))
-					m_hWnd = hWnd;
+				while (m_hWnd && (GetWindowLong(m_hWnd, GWL_STYLE) & WS_CHILD))
+					m_hWnd = GetParent(m_hWnd);
 				if (*SHELL32.SHGetPropertyStoreForWindow)
 					(*SHELL32.SHGetPropertyStoreForWindow)(m_hWnd, IID_PPV_ARGS(&m_spPropertyStore));
 			}
@@ -409,8 +401,8 @@ public:
 				AutoReleasePtr<IHTMLStyle3> spStyle3;
 				SafeInvoke(spStyle)->QueryInterface(&spStyle3);
 				VARIANT var;
-				WCHAR buf[12];
-				wsprintfW(buf, L"%d%%", m_pctzoom);
+				WCHAR buf[40];
+				wsprintfW(buf, L"%d%%", m_scaleFeatures.pctzoom);
 				InitVariantFromString(buf, &var);
 				spStyle3->put_zoom(var);
 				VariantClear(&var);
@@ -433,24 +425,24 @@ public:
 		{
 			if (EatPrefix(bstrBehavior, L"Host") == pwszBehaviorParams)
 			{
-				// Release interfaces acquired from preliminary dialog instance
-				m_spWindow2.Release();
-				m_spDocument2.Release();
-				m_spOleWindow.Release();
-				m_spElement.Release();
-				// Acquire interfaces from calling dialog instance
 				SafeInvoke(pSite)->GetElement(&m_spElement);
 				AutoReleasePtr<IDispatch> spDispatch;
 				SafeInvoke(m_spElement)->get_document(&spDispatch);
 				SafeInvoke(spDispatch)->QueryInterface(&m_spOleWindow);
 				SafeInvoke(spDispatch)->QueryInterface(&m_spDocument2);
 				SafeInvoke(m_spDocument2)->get_parentWindow(&m_spWindow2);
-				// If caller wants different features, remember them and close
+				// If caller wants different features, recurse
 				if (*pwszBehaviorParams++ &&
 					lstrcmpW(m_features, pwszBehaviorParams) != 0)
 				{
+					// Release interfaces acquired from preliminary dialog instance
+					m_spWindow2.Release();
+					m_spDocument2.Release();
+					m_spOleWindow.Release();
+					m_spElement.Release();
 					SysReAllocString(&m_features, pwszBehaviorParams);
-					m_spWindow2->close();
+					m_scaleFeatures.Parse(m_features);
+					ExitProcess(Modal(HTMLDLG_MODAL | HTMLDLG_VERIFY));
 				}
 				return QueryInterface(IID_IElementBehavior, (void **)ppBehavior);
 			}
@@ -513,13 +505,14 @@ private:
 	LPCWSTR const					m_cmdline;
 	HMODULE const					m_hModule;
 	HWND							m_hWnd;
-	bool							m_ready;
+	HWND							m_owner;
 	UINT							m_uCustomIcons;
-	int								m_pctzoom;
+	ScaleFeatures					m_scaleFeatures;
 	SHFILEINFOW						m_icon;
 	AutoBSTR						m_title;
 	AutoBSTR						m_features;
 	AutoReleasePtr<ITypeInfo>		m_spTypeInfo;
+	AutoReleasePtr<IMoniker>		m_spMoniker;
 	AutoReleasePtr<IHTMLElement>	m_spElement;
 	AutoReleasePtr<IOleWindow>		m_spOleWindow;
 	AutoReleasePtr<IHTMLDocument2>	m_spDocument2;
@@ -538,3 +531,17 @@ int WINAPI WinMainCRTStartup()
 	}
 	ExitProcess(hr);
 }
+
+#ifdef _WIN64
+#	define __cdecl(name) #name
+#	define __stdcall(name, bytes) #name
+#	pragma comment(linker, "/SUBSYSTEM:WINDOWS,5.2") // Windows XP 64-Bit
+#else
+#	define __cdecl(name) "_" #name
+#	define __stdcall(name, bytes) "_" #name "@" #bytes
+#	pragma comment(linker, "/SUBSYSTEM:WINDOWS,5.0") // Windows 2000
+#endif
+
+// Create an otherwise irrelevant EAT entry to identify the commit version
+extern "C" int const build_git_rev = BUILD_GIT_REV;
+#pragma comment(linker, "/EXPORT:" BUILD_GIT_BRANCH BUILD_GIT_SHA "=" __cdecl(build_git_rev))

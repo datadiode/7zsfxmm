@@ -7,7 +7,7 @@
 #include "stdafx.h"
 #include "7zSfxHtmInt.h"
 
-int GetUIZoomFactor()
+void SetDpiAwareness()
 {
 	struct SHCORE {
 		enum ProcessDpiAwareness {
@@ -24,14 +24,6 @@ int GetUIZoomFactor()
 
 	if (*SHCORE.SetProcessDpiAwareness)
 		(*SHCORE.SetProcessDpiAwareness)(SHCORE.ProcessSystemDpiAware);
-
-	int zoom = 100;
-	if (HDC hdc = GetDC(NULL))
-	{
-		zoom = MulDiv(GetDeviceCaps(hdc, LOGPIXELSX), 100, 96);
-		ReleaseDC(NULL, hdc);
-	}
-	return zoom;
 }
 
 BOOL SfxCreateDirectory( LPCWSTR path )

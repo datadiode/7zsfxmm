@@ -83,13 +83,12 @@ public:
 		switch (lEvent)
 		{
 		case BEHAVIOREVENT_DOCUMENTREADY:
-			m_ready = true;
 			m_hExtractWindow = NULL;
 			if (m_spOleWindow)
 			{
 				m_spOleWindow->GetWindow(&m_hExtractWindow);
-				while (HWND hWnd = GetParent(m_hExtractWindow))
-					m_hExtractWindow = hWnd;
+				while (m_hExtractWindow && (GetWindowLong(m_hExtractWindow, GWL_STYLE) & WS_CHILD))
+					m_hExtractWindow = GetParent(m_hExtractWindow);
 				HANDLE hBigIcon = LoadImage(
 					m_hRsrcModule, MAKEINTRESOURCE(1),
 					IMAGE_ICON, GetSystemMetrics(SM_CXICON),
@@ -103,21 +102,7 @@ public:
 				SendMessage(m_hExtractWindow, WM_SETICON, ICON_BIG, (LPARAM)hBigIcon);
 				SendMessage(m_hExtractWindow, WM_SETICON, ICON_SMALL, (LPARAM)hSmallIcon);
 			}
-			if (m_spDocument2)
-			{
-				m_spDocument2->get_title(&m_title);
-				CMyComPtr<IHTMLElement> spBody;
-				m_spDocument2->get_body(&spBody);
-				CMyComPtr<IHTMLElement2> spBody2;
-				SafeInvoke(spBody)->QueryInterface(&spBody2);
-				CMyComPtr<IHTMLStyle> spStyle;
-				SafeInvoke(spBody2)->get_runtimeStyle(&spStyle);
-				CMyComPtr<IHTMLStyle3> spStyle3;
-				SafeInvoke(spStyle)->QueryInterface(&spStyle3);
-				VARIANT var;
-				InitVariantFromDouble(m_pctzoom / 100.0, &var);
-				SafeInvoke(spStyle3)->put_zoom(var);
-			}
+			SafeInvoke(m_spDocument2)->get_title(&m_title);
 			break;
 		}
 		return S_OK;
@@ -134,7 +119,7 @@ public:
 	STDMETHOD(get_ExitCode)(LONG *plExitCode);
 	STDMETHOD(get_Progress)(DOUBLE *pdProgress);
 	STDMETHOD(ExtractPayload)(BSTR bsPath);
-	STDMETHOD(ExtractAdjunct)(BSTR bsPath, BSTR bsFilter, BSTR bsType);
+	STDMETHOD(ExtractAdjunct)(BSTR bsPath, BSTR bsFilter);
 	STDMETHOD(put_OverwriteMode)(LONG lOverwriteMode);
 	STDMETHOD(get_OverwriteMode)(LONG *plOverwriteMode);
 	STDMETHOD(put_WindowState)(LONG lWindowState);
@@ -145,7 +130,6 @@ public:
 	CSfxExtractEngine(HINSTANCE hRsrcModule)
 		: m_pVersionStrings(CVersionData::Load(hRsrcModule)->Find(L"StringFileInfo")->First())
 		, m_outFileStreamSpec(NULL)
-		, m_ready(false)
 		, m_hRsrcModule(hRsrcModule)
 		, m_hExtractWindow(NULL)
 		, m_hExtractThread(NULL)
@@ -153,13 +137,12 @@ public:
 		, m_fDiscard(FALSE)
 		, m_fSuccess(FALSE)
 		, m_iconid(0)
-		, m_pctzoom(GetUIZoomFactor())
 		, m_ErrorCode(NArchive::NExtract::NOperationResult::kOK)
 		, m_total(0)
 		, m_completed(0)
-		, m_choice(0)
 		, m_overwriteMode(OVERWRITE_MODE_ALL)
 	{
+		SetDpiAwareness();
 	}
 	void SetTaskbarState( TBPFLAG tbpFlags )
 	{
@@ -181,6 +164,7 @@ private:
 	CVersionData const *const	m_pVersionStrings;
 
 	CMyComPtr<ITypeInfo>		m_spTypeInfo;
+	CMyComPtr<IMoniker>			m_spMoniker;
 	CMyComPtr<IHTMLElement>		m_spElement;
 	CMyComPtr<IHTMLElement3>	m_spElement3;
 	CMyComPtr<IOleWindow>		m_spOleWindow;
@@ -195,15 +179,12 @@ private:
 	UString					m_features;
 	UString					m_path;
 	UString					m_filter;
-	UString					m_rctype;
 	WORD					m_iconid;
-	int						m_pctzoom;
 	Int32					m_extractMode;
 	CSfxArchive				m_archive;
 	COutFileStream *		m_outFileStreamSpec;
 	CMyComPtr<ISequentialOutStream> m_outFileStream;
 	UString					m_diskFilePath;
-	bool					m_ready;
 	HINSTANCE				m_hRsrcModule;
 	HWND					m_hExtractWindow;
 	HANDLE					m_hExtractThread;
@@ -217,7 +198,6 @@ private:
 #endif // _SFX_USE_EXTRACT_MASK
 	UInt64					m_total;
 	UInt64					m_completed;
-	int						m_choice;
 	long					m_overwriteMode;
 
 	struct IconHeader
@@ -261,7 +241,7 @@ private:
 private:
 	int DeleteUseOverwriteFlags(LPCWSTR);
 	int GetOverwriteMode(LPCWSTR, FILETIME *);
-	HRESULT HtmlExtractDialog();
+	HRESULT Modal(DWORD);
 	HRESULT ExtractWorker();
 	static DWORD WINAPI ExtractThread(LPVOID);
 	HRESULT Extract();

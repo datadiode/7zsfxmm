@@ -1,29 +1,29 @@
 <style>
 body
 {
-	margin: 5;
+	margin: 5pt;
 	overflow: hidden;
-	font: 13 verdana;
+	font: 10pt verdana;
 }
 ul
 {
-	margin: 0 0 0 20;
+	margin: 0 0 0 20pt;
 }
 h4, h5
 {
-	margin: 5 0 5 0;
+	margin: 5pt 0 5pt 0;
 }
 button
 {
-	height: 25;
-	width: 60;
-	margin-left: 5;
+	height: 18pt;
+	width: 60pt;
+	margin-left: 5pt;
 }
 #buttons
 {
 	position: absolute;
 	text-align: right;
-	margin: 5;
+	margin: 5pt;
 	right: 0;
 	bottom: 0;
 }
@@ -31,22 +31,23 @@ button
 <script id='script' type='text/vbs'>
 Option Explicit
 
-script.addBehavior "#HTDialog#Host?dialogWidth:500px;dialogHeight:500px;", dialogArguments
+script.addBehavior "#HTDialog#Host?dialogWidth:420pt;dialogHeight:360pt;", dialogArguments
 
 Const AppUserModel_ID								= 5
 Const AppUserModel_ExcludeFromShowInNewInstall		= 8
 Const AppUserModel_PreventPinning					= 9
 
 Sub Window_OnLoad
+	script.Icon = ".hlp"
 	script.AppUserModel(AppUserModel_PreventPinning) = True
 	script.AppUserModel(AppUserModel_ExcludeFromShowInNewInstall) = True
 	script.AppUserModel(AppUserModel_ID) = "datadiode.HTDialog.00450AE8-84F9-499A-B7B5-7FCADAD5AC01"
 End Sub
 </script>
 <head>
-<meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
 <meta http-equiv='MSThemeCompatible' content='yes'>
-<title>HTDialog v1.2</title>
+<title>HTDialog v1.3</title>
 </head>
 <body>
 <h4>Usage:</h4>
