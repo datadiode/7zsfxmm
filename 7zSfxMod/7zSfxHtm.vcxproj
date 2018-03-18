@@ -785,9 +785,6 @@
       <OutputDirectory Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\midl</OutputDirectory>
     </Midl>
   </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="7zSfxHtm\res\7zSfxHtm.manifest" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />

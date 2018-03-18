@@ -65,7 +65,7 @@ EXTERN_C LONG CALLBACK CPlApplet(HWND, UINT uMsg, LONG, LONG)
 		SHELLEXECUTEINFOW info;
 		memset(&info, 0, sizeof info);
 		info.cbSize = sizeof info;
-		info.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC;
+		info.fMask = SEE_MASK_NOCLOSEPROCESS;
 		info.hwnd = CreateWindowW(
 			L"STATIC", NULL, WS_POPUP, 0, 0,
 			GetSystemMetrics(SM_CXSCREEN),
@@ -73,14 +73,15 @@ EXTERN_C LONG CALLBACK CPlApplet(HWND, UINT uMsg, LONG, LONG)
 			NULL, NULL, NULL, NULL);
 		SetFocus(info.hwnd);
 		info.nShow = SW_SHOWNORMAL;
-		info.lpVerb = L"runas";
+		WCHAR verb[256];
+		if (LoadStringW(g_hInstance, 0, verb, _countof(verb)))
+			info.lpVerb = verb;
 		info.lpFile = file;
 		info.lpParameters = params;
 		DWORD dwExitCode = 0;
 		if (ShellExecuteExW(&info))
 		{
-			WaitForSingleObject(info.hProcess, INFINITE);
-			GetExitCodeProcess(info.hProcess, &dwExitCode);
+			WaitForProcess(info.hProcess, &dwExitCode);
 			CloseHandle(info.hProcess);
 		}
 		else

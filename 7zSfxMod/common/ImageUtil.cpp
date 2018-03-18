@@ -9,11 +9,22 @@
 // https://textslashplain.com/2015/12/18/dll-hijacking-just-wont-die/
 // https://unhandledexpression.com/2010/08/23/fixing-the-dll-loading-vulnerability/
 // http://seclists.org/fulldisclosure/2015/Nov/101
+// Article on Phantom DLLs:
+// http://www.hexacorn.com/blog/2013/12/08/beyond-good-ol-run-key-part-5/
 // SumatraPDF's SafeLoadLibrary() happens to work like DllHandle::Load():
 // https://github.com/sumatrapdfreader/sumatrapdf/blob/master/src/utils/WinDynCalls.cpp
 
 #include <stdafx.h>
 #include "ImageUtil.h"
+
+// Preload DLLs which are known to disregard SetDefaultDllDirectories().
+// This list is exclusive of URLMON and MSHTML dependencies, because there is no
+// practical way to track them, which renders use of URLMON and MSHTML unsafe as
+// long as the hosting application executes from a potentially unsafe location.
+static HMODULE const preloads[] = {
+	DllHandle::Load(L"DWMAPI"),
+	DllHandle::Load(L"VERSION"),
+};
 
 struct KERNEL32 {
 	static DWORD const LOAD_LIBRARY_SEARCH_APPLICATION_DIR	= 0x00000200;
@@ -37,6 +48,17 @@ STDAPI_(HMODULE) LoadResLibrary(LPCWSTR path)
 	return hModule;
 }
 
+STDAPI_(BOOL) WaitForProcess(HANDLE hProcess, DWORD *pdwExitCode)
+{
+	// Have the thread remain responsive but ignore all messages
+	while (MsgWaitForMultipleObjects(1, &hProcess, FALSE, INFINITE, QS_ALLINPUT) == WAIT_OBJECT_0 + 1)
+	{
+		MSG msg;
+		PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
+	}
+	return GetExitCodeProcess(hProcess, pdwExitCode);
+}
+
 STDAPI ClearSearchPath()
 {
 	HRESULT hr = SetEnvironmentVariableW(L"PATH", NULL) ? S_OK : S_FALSE;
@@ -44,12 +66,9 @@ STDAPI ClearSearchPath()
 		(*KERNEL32.SetDllDirectoryW)(L"") ? S_OK : S_FALSE;
 	hr |= *KERNEL32.SetDefaultDllDirectories &&
 		(*KERNEL32.SetDefaultDllDirectories)(KERNEL32.LOAD_LIBRARY_SEARCH_SYSTEM32) ? S_OK : S_FALSE;
-	// Preload VERSION.DLL because above measures don't help with URLMON.DLL.
-	// I suspect this is due to the api-ms-win-downlevel-* thing, which might
-	// somehow defeat the intended effect of SetDefaultDllDirectories() when
-	// the DLL in question is not listed under KnownDlls.
-	hr |= DllHandle::Load(L"VERSION") ? S_OK : S_FALSE;
-	return hr;
+	// Unless debugging, just indicate that the search path isn't safe, because
+	// once URLMON and MSHTML come into play, DLL dependencies become unwieldy.
+	return IsDebuggerPresent() ? hr : S_FALSE;
 }
 
 #define TOKENPASTE(x, y) TOKENPASTE2(x, y)

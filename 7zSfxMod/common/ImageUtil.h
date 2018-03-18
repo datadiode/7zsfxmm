@@ -25,6 +25,8 @@ struct DllImport {
 
 STDAPI_(HMODULE) LoadResLibrary(LPCWSTR path);
 
+STDAPI_(BOOL) WaitForProcess(HANDLE hProcess, DWORD *pdwExitCode);
+
 STDAPI ClearSearchPath();
 
 STDAPI CreateImage(LPCWSTR src, LPCWSTR dst, DWORD how, DWORD img, DWORD osv);

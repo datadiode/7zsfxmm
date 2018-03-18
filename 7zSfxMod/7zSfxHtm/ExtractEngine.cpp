@@ -752,12 +752,19 @@ HRESULT CSfxExtractEngine::CreateSelfExtractor(LPCWSTR lpwszValue)
 		IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE));
 	DWORD osv = 0;
 	LPCWSTR lpManifestName = CREATEPROCESS_MANIFEST_RESOURCE_ID;
+	WCHAR DefStringTable[16 * 256];
+	PWSTR DefStringTableEnd = DefStringTable;
+	*DefStringTableEnd++ = 0;
+	DWORD DefStringCount = 1;
 	if (LPCWSTR lpwszAhead = IsSfxSwitch(lpwszValue, L"dll"))
 	{
+		UString ShellExecVerb;
+		SKIP_WHITESPACES_W(lpwszAhead);
+		lpwszValue = LoadQuotedString(lpwszAhead, ShellExecVerb);
+		DefStringTableEnd += DefStringTableEnd[-1] = static_cast<WCHAR>(wsprintfW(DefStringTableEnd, ShellExecVerb));
 		img = static_cast<DWORD>(MAKELONG(
 			IMAGE_FILE_EXECUTABLE_IMAGE | IMAGE_FILE_DLL, 0));
 		lpManifestName = ISOLATIONAWARE_MANIFEST_RESOURCE_ID;
-		lpwszValue = lpwszAhead;
 	}
 	if (LPCWSTR lpwszAhead = IsSfxSwitch(lpwszValue, L"target"))
 	{
@@ -1037,6 +1044,21 @@ HRESULT CSfxExtractEngine::CreateSelfExtractor(LPCWSTR lpwszValue)
 			(fUpdate ? fDiscard : fSuccess) = FALSE;
 		}
 	}
+#ifdef _DEBUG
+	// for testing
+	DefStringTableEnd += DefStringTableEnd[-1] = static_cast<WCHAR>(wsprintfW(++DefStringTableEnd, L"1st followup string"));
+	DefStringTableEnd += DefStringTableEnd[-1] = static_cast<WCHAR>(wsprintfW(++DefStringTableEnd, L"2nd followup string"));
+	DefStringTableEnd += DefStringTableEnd[-1] = static_cast<WCHAR>(wsprintfW(++DefStringTableEnd, L"3rd followup string"));
+	DefStringCount += 3;
+#endif
+	while (DefStringCount < 16)
+	{
+		*DefStringTableEnd++ = 0;
+		++DefStringCount;
+	}
+	BOOL fUpdate = UpdateResourceW(hUpdate, RT_STRING, MAKEINTRESOURCE(1), 0,
+		DefStringTable, static_cast<DWORD>(DefStringTableEnd - DefStringTable) * sizeof(WCHAR));
+	(fUpdate ? fDiscard : fSuccess) = FALSE;
 	if (!EndUpdateResourceW(hUpdate, fDiscard) || !fSuccess)
 	{
 		DWORD const status = GetLastError();
@@ -1103,12 +1125,6 @@ HRESULT CSfxExtractEngine::Run(LPWSTR lpCmdLine)
 		m_sfxpath = path;
 	}
 
-	if (IsSfxSwitch(str, L"about"))
-	{
-		AboutBox();
-		return S_OK;
-	}
-
 	if (LPCWSTR lpwszValue = IsSfxSwitch(str, L"create"))
 	{
 		return CreateSelfExtractor(lpwszValue);
@@ -1124,6 +1140,12 @@ HRESULT CSfxExtractEngine::Run(LPWSTR lpCmdLine)
 		lpCmdLine = NULL;
 	}
 #endif
+
+	if (FindResource(m_hRsrcModule, MAKEINTRESOURCE(1), RT_STRING) == NULL)
+	{
+		AboutBox();
+		return S_OK;
+	}
 
 	if (int nPos = m_sfxpath.ReverseFind_PathSepar() + 1)
 	{
@@ -1163,9 +1185,8 @@ HRESULT CSfxExtractEngine::Run(LPWSTR lpCmdLine)
 				if (CreateProcess(temp, lpCmdLine, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
 				{
 					CloseHandle(pi.hThread);
-					WaitForSingleObject(pi.hProcess, INFINITE);
 					C_ASSERT(sizeof(HRESULT) == sizeof(DWORD));
-					GetExitCodeProcess(pi.hProcess, reinterpret_cast<DWORD *>(&hr));
+					WaitForProcess(pi.hProcess, reinterpret_cast<DWORD *>(&hr));
 					CloseHandle(pi.hProcess);
 				}
 				else

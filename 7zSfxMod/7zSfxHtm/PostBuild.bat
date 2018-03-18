@@ -20,8 +20,9 @@ goto :PostBuild$%3%4
 
 :PostBuild$32.exe
 :PostBuild$64.exe
-"%~27zSfxHtm.exe" /create /target 4.0 "%~27zSfxHtmExeTest.exe" /adjunct "%0" /manifest "%~dp0res\7zSfxHtm.manifest" "%ArchivePath%"
-"%~27zSfxHtm.exe" /create /dll /target 4.0 "%~27zSfxHtmExeTest.cpl" /adjunct "%0" /manifest "%~dp0res\7zSfxHtm.manifest" "%ArchivePath%"
+"%~27zSfxHtm.exe" /create /target 4.0 "%~27zSfxHtmExeTest.exe" /adjunct "%0" /manifest "%~dp0res\requireAdministrator.manifest" "%ArchivePath%"
+"%~27zSfxHtm.exe" /create /dll open /target 4.0 "%~27zSfxHtmExeTestOpen.cpl" /adjunct "%0" /manifest "%~dp0res\asInvoker.manifest" "%ArchivePath%"
+"%~27zSfxHtm.exe" /create /dll runas /target 4.0 "%~27zSfxHtmExeTestRunAs.cpl" /adjunct "%0" /manifest "%~dp0res\asInvoker.manifest" "%ArchivePath%"
 goto :PostBuild$
 
 :PostBuild$32.dll
