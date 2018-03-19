@@ -2,7 +2,7 @@
 /* File:        ExtractEngine.cpp                                            */
 /* Created:     Wed, 05 Oct 2005 07:36:00 GMT                                */
 /*              by Oleg N. Scherbakov, mailto:oleg@7zsfx.info                */
-/* Last update: 2018-03-13 by https://github.com/datadiode                   */
+/* Last update: 2018-03-19 by https://github.com/datadiode                   */
 /*---------------------------------------------------------------------------*/
 #include "stdafx.h"
 #include <urlmon.h>
@@ -1059,6 +1059,14 @@ HRESULT CSfxExtractEngine::CreateSelfExtractor(LPCWSTR lpwszValue)
 	BOOL fUpdate = UpdateResourceW(hUpdate, RT_STRING, MAKEINTRESOURCE(1), 0,
 		DefStringTable, static_cast<DWORD>(DefStringTableEnd - DefStringTable) * sizeof(WCHAR));
 	(fUpdate ? fDiscard : fSuccess) = FALSE;
+	// Remove the excess manifest
+	fUpdate = UpdateResourceW(hUpdate, RT_MANIFEST,
+		MAKEINTRESOURCE(LOWORD(lpManifestName) ^
+			LOWORD(CREATEPROCESS_MANIFEST_RESOURCE_ID) ^
+			LOWORD(ISOLATIONAWARE_MANIFEST_RESOURCE_ID)),
+		0, NULL, 0);
+	(fUpdate ? fDiscard : fSuccess) = FALSE;
+	// Commit changes to output file
 	if (!EndUpdateResourceW(hUpdate, fDiscard) || !fSuccess)
 	{
 		DWORD const status = GetLastError();
@@ -1145,16 +1153,6 @@ HRESULT CSfxExtractEngine::Run(LPWSTR lpCmdLine)
 	{
 		AboutBox();
 		return S_OK;
-	}
-
-	if (int nPos = m_sfxpath.ReverseFind_PathSepar() + 1)
-	{
-		// Sanity check the file title
-		if (m_sfxpath.Find(L'.', nPos) - nPos >= 64)
-		{
-			SfxErrorDialog(0, ERR_READ_CONFIG);
-			return E_FAIL;
-		}
 	}
 
 	HRESULT hr = ClearSearchPath();

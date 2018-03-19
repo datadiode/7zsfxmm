@@ -2,7 +2,7 @@
 /* File:        Helpers.cpp                                                  */
 /* Created:     Sat, 30 Jul 2005 11:10:00 GMT                                */
 /*              by Oleg N. Scherbakov, mailto:oleg@7zsfx.info                */
-/* Last update: Wed, 08 Mar 2018 by https://github.com/datadiode             */
+/* Last update: Wed, 19 Mar 2018 by https://github.com/datadiode             */
 /*---------------------------------------------------------------------------*/
 #include "stdafx.h"
 #include "7zSfxHtmInt.h"
