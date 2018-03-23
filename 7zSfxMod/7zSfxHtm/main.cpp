@@ -29,9 +29,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpszCmdLine, int)
 	HRESULT hr = S_OK;
 	__try
 	{
-		hr = CMyComPtr<CSfxExtractEngine>(
-			new CSfxExtractEngine(g_hInstance ? g_hInstance : hInstance)
-		) -> Run(g_lpszCmdLine ? g_lpszCmdLine : lpszCmdLine);
+		hr = CSfxExtractEngine::Run(
+			g_hInstance ? g_hInstance : hInstance,
+			g_lpszCmdLine ? g_lpszCmdLine : lpszCmdLine);
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
@@ -50,48 +50,70 @@ EXTERN_C void CALLBACK EntryPointW(HWND, HINSTANCE, LPWSTR lpszCmdLine, int)
 	wWinMainCRTStartup();
 }
 
+static HWND CreateHiddenOwner()
+{
+	HWND hwnd = CreateWindowW(
+		L"STATIC", NULL, WS_POPUP, 0, 0,
+		GetSystemMetrics(SM_CXSCREEN),
+		GetSystemMetrics(SM_CYSCREEN),
+		NULL, NULL, NULL, NULL);
+	SetFocus(hwnd);
+	return hwnd;
+}
+
+static DWORD RunDll32(LPCWSTR verb)
+{
+	WCHAR file[MAX_PATH];
+	GetSystemDirectoryW(file, MAX_PATH);
+	PathAppendW(file, L"rundll32.exe");
+	WCHAR params[MAX_PATH + 40];
+	GetModuleFileNameW(g_hInstance, params, MAX_PATH);
+	PathQuoteSpacesW(params);
+	wcscat(params, L",EntryPoint");
+	SHELLEXECUTEINFOW info;
+	memset(&info, 0, sizeof info);
+	info.cbSize = sizeof info;
+	info.fMask = SEE_MASK_NOCLOSEPROCESS;
+	info.hwnd = CreateHiddenOwner();
+	info.nShow = SW_SHOWNORMAL;
+	info.lpVerb = verb;
+	info.lpFile = file;
+	info.lpParameters = params;
+	DWORD dwExitCode = 0;
+	if (ShellExecuteExW(&info))
+	{
+		WaitForProcess(info.hProcess, &dwExitCode);
+		CloseHandle(info.hProcess);
+	}
+	else
+	{
+		dwExitCode = GetLastError();
+	}
+	DestroyWindow(info.hwnd);
+	return dwExitCode;
+}
+
 EXTERN_C LONG CALLBACK CPlApplet(HWND, UINT uMsg, LONG, LONG)
 {
 	switch (uMsg) 
 	{
 	case CPL_INIT:
-		WCHAR file[MAX_PATH];
-		GetSystemDirectoryW(file, MAX_PATH);
-		PathAppendW(file, L"rundll32.exe");
-		WCHAR params[MAX_PATH + 40];
-		GetModuleFileNameW(g_hInstance, params, MAX_PATH);
-		PathQuoteSpacesW(params);
-		wcscat(params, L",EntryPoint");
-		SHELLEXECUTEINFOW info;
-		memset(&info, 0, sizeof info);
-		info.cbSize = sizeof info;
-		info.fMask = SEE_MASK_NOCLOSEPROCESS;
-		info.hwnd = CreateWindowW(
-			L"STATIC", NULL, WS_POPUP, 0, 0,
-			GetSystemMetrics(SM_CXSCREEN),
-			GetSystemMetrics(SM_CYSCREEN),
-			NULL, NULL, NULL, NULL);
-		SetFocus(info.hwnd);
-		info.nShow = SW_SHOWNORMAL;
 		WCHAR verb[256];
-		if (LoadStringW(g_hInstance, 0, verb, _countof(verb)))
-			info.lpVerb = verb;
-		info.lpFile = file;
-		info.lpParameters = params;
-		DWORD dwExitCode = 0;
-		if (ShellExecuteExW(&info))
-		{
-			WaitForProcess(info.hProcess, &dwExitCode);
-			CloseHandle(info.hProcess);
-		}
-		else
-		{
-			dwExitCode = GetLastError();
-		}
-		ExitProcess(dwExitCode);
+		ExitProcess(RunDll32(LoadStringW(g_hInstance, 0, verb, _countof(verb)) ? verb : NULL));
 		break;
 	}
 	return 0;
+}
+
+EXTERN_C UINT CALLBACK CustomAction(HANDLE)
+{
+	if (HWND hWnd = FindWindowW(WC_DIALOG, L"7-Zip HTSFX MSI Package"))
+	{
+		PostMessage(hWnd, WM_COMMAND, IDCANCEL, 0);
+		SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_HIDEWINDOW | SWP_ASYNCWINDOWPOS);
+	}
+	RunDll32(L"open");
+	return ERROR_INSTALL_USEREXIT;
 }
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
@@ -122,6 +144,7 @@ EXTERN_C BOOL WINAPI HybridCRTStartup(HINSTANCE hinstDLL, DWORD dwReason, LPVOID
 #pragma comment(linker, "/ENTRY:HybridCRTStartup")
 #pragma comment(linker, "/EXPORT:EntryPointW="	__stdcall(EntryPointW,	16))
 #pragma comment(linker, "/EXPORT:CPlApplet="	__stdcall(CPlApplet,	16))
+#pragma comment(linker, "/EXPORT:CustomAction="	__stdcall(CustomAction,	4))
 
 // Create an otherwise irrelevant EAT entry to identify the commit version
 extern "C" int const build_git_rev = BUILD_GIT_REV;

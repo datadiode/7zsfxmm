@@ -249,8 +249,12 @@ private:
 	BOOL ExtractResources(HMODULE hModule, LPWSTR lpType);
 	void AboutBox();
 	HRESULT CreateSelfExtractor(LPCWSTR lpwszValue);
-public:
 	HRESULT Run(LPWSTR);
+public:
+	static HRESULT Run(HINSTANCE hRsrcModule, LPWSTR lpCmdLine)
+	{
+		return CMyComPtr<CSfxExtractEngine>(new CSfxExtractEngine(hRsrcModule))->Run(lpCmdLine);
+	}
 };
 
 #endif // _EXTRACTENGINE_H_INCLUDED_
