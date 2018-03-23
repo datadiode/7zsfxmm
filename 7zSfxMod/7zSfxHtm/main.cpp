@@ -6,6 +6,7 @@
 /*---------------------------------------------------------------------------*/
 #include "stdafx.h"
 #include <cpl.h>
+#include <tlhelp32.h>
 #include "7zSfxHtmInt.h"
 #include "ExtractEngine.h"
 #include "archive.h"
@@ -105,9 +106,40 @@ EXTERN_C LONG CALLBACK CPlApplet(HWND, UINT uMsg, LONG, LONG)
 	return 0;
 }
 
+static HWND FindProcessWindow(LPCWSTR lpszExeFile, LPCWSTR lpszClass, LPCWSTR lpszWindow)
+{
+	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	HWND hWnd = NULL;
+	if (hSnapshot != INVALID_HANDLE_VALUE)
+	{
+		PROCESSENTRY32W pe;
+		memset(&pe, 0, sizeof pe);
+		pe.dwSize = sizeof pe;
+		BOOL bContinue = Process32FirstW(hSnapshot, &pe);
+		while (bContinue)
+		{
+			if (_wcsicmp(pe.szExeFile, lpszExeFile) == 0)
+			{
+				while ((hWnd = FindWindowExW(NULL, hWnd, lpszClass, lpszWindow)) != NULL)
+				{
+					DWORD dwProcessId = 0;
+					if (GetWindowThreadProcessId(hWnd, &dwProcessId) && dwProcessId == pe.th32ProcessID)
+					{
+						pe.dwSize = 0;
+						break;
+					}
+				}
+			}
+			bContinue = Process32NextW(hSnapshot, &pe);
+		}
+		CloseHandle(hSnapshot);
+	}
+	return hWnd;
+}
+
 EXTERN_C UINT CALLBACK CustomAction(HANDLE)
 {
-	if (HWND hWnd = FindWindowW(WC_DIALOG, L"7-Zip HTSFX MSI Package"))
+	if (HWND hWnd = FindProcessWindow(L"MSIEXEC.EXE", WC_DIALOG, NULL))
 	{
 		PostMessage(hWnd, WM_COMMAND, IDCANCEL, 0);
 		SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_HIDEWINDOW | SWP_ASYNCWINDOWPOS);
