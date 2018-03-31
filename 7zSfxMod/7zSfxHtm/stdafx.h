@@ -9,10 +9,12 @@
 
 #include "config.h"
 
-#define _NO_EXCEPTIONS
-#define _HAS_EXCEPTIONS 0
-#define try if (1,1)
-#define catch(x) else if (1,1)
+#ifndef _CPPUNWIND
+#	define _NO_EXCEPTIONS
+#	define _HAS_EXCEPTIONS 0
+#	define try if (1,1)
+#	define catch(x) else if (1,1)
+#endif
 
 #define WIN32_LEAN_AND_MEAN
 #define _WIN32_WINNT 0x0501
@@ -34,16 +36,10 @@
 #include "7Zip/Archive/IArchive.h"
 #include "Common/Wildcard.h"
 
-extern "C" {
-	#include "../C/7zcrc.h"
-}
-
-#ifndef MUI_LANGUAGE_ID
-	#define MUI_LANGUAGE_ID                     0x4      // Use traditional language ID convention
-#endif // MUI_LANGUAGE_ID
+#include "../../7-Zip/C/7zcrc.h"
 
 #ifdef SFX_CRYPTO
-	#include "../C/Sha256.h"
+#	include "../../7-Zip/C/Sha256.h"
 #endif // SFX_CRYPTO
 
 #undef True

@@ -7,16 +7,13 @@
 #include "stdafx.h"
 #include <cpl.h>
 #include <tlhelp32.h>
+#include <new.h>
 #include "7zSfxHtmInt.h"
 #include "ExtractEngine.h"
-#include "archive.h"
-#include "../C/Lzma86.h"
-
-#include <new.h>
 
 static int sfx_new_handler(size_t)
 {
-	FatalAppExitA(0, "Could not allocate memory");
+	FatalAppExitW(0, L"Could not allocate memory");
 	return 0;
 }
 
@@ -36,9 +33,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpszCmdLine, int)
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
-		char msg[256];
-		wsprintfA(msg, "An exception of type 0x%08lX has occurred", GetExceptionCode());
-		FatalAppExitA(0, msg);
+		WCHAR msg[256];
+		wsprintfW(msg, L"An exception of type 0x%08lX has occurred", GetExceptionCode());
+		FatalAppExitW(0, msg);
 	}
 	return hr;
 }

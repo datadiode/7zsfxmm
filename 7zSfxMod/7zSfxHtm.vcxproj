@@ -25,9 +25,11 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v90</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v90</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <PlatformToolset>Windows7.1SDK</PlatformToolset>
@@ -92,17 +94,13 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>false</OmitDefaultLibName>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>false</ExceptionHandling>
       <WarningLevel>Level4</WarningLevel>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>libcmt.lib;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
-      <HeapReserveSize>16777216</HeapReserveSize>
+      <AdditionalDependencies>runtmchk.lib;noarg.obj;noenv.obj;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
       <OptimizeReferences>
       </OptimizeReferences>
       <EnableCOMDATFolding>
@@ -129,22 +127,17 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ProjectName);..\7-Zip\CPP\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;_DEBUGALL;WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SmallerTypeCheck>false</SmallerTypeCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>false</ExceptionHandling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_WIN64;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>libcmt.lib;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
-      <HeapReserveSize>16777216</HeapReserveSize>
+      <AdditionalDependencies>runtmchk.lib;noarg.obj;noenv.obj;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
       <OptimizeReferences>
       </OptimizeReferences>
       <EnableCOMDATFolding>
@@ -174,22 +167,19 @@
     <ClCompile>
       <Optimization>MinSpace</Optimization>
       <AdditionalIncludeDirectories>$(ProjectName);..\7-Zip\CPP\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;COMPRESS_LZMA;COMPRESS_LZMA2;COMPRESS_BCJ;WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;COMPRESS_LZMA;COMPRESS_LZMA2;COMPRESS_BCJ;COMPRESS_BCJ2;WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <OmitDefaultLibName>true</OmitDefaultLibName>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <ExceptionHandling>false</ExceptionHandling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <ResourceCompile />
     <Link>
       <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>libcmt.lib;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
+      <AdditionalDependencies>runtmchk.lib;noarg.obj;noenv.obj;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
@@ -213,7 +203,7 @@
     <ClCompile>
       <Optimization>MinSpace</Optimization>
       <AdditionalIncludeDirectories>$(ProjectName);..\7-Zip\CPP\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;COMPRESS_LZMA;COMPRESS_LZMA2;COMPRESS_BCJ;WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;COMPRESS_LZMA;COMPRESS_LZMA2;COMPRESS_BCJ;COMPRESS_BCJ2;WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -221,16 +211,13 @@
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <OmitDefaultLibName>true</OmitDefaultLibName>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <ExceptionHandling>false</ExceptionHandling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_WIN64;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>libcmt.lib;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
+      <AdditionalDependencies>runtmchk.lib;noarg.obj;noenv.obj;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX64</TargetMachine>
@@ -770,14 +757,10 @@
     <Library Include="lib\crt\amd64\msvcrt.lib">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </Library>
     <Library Include="lib\crt\i386\msvcrt.lib">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </Library>
   </ItemGroup>
   <ItemGroup>

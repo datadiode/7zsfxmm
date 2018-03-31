@@ -710,9 +710,9 @@ DWORD WINAPI CSfxExtractEngine::ExtractThread( LPVOID pThis )
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
-		char msg[256];
-		wsprintfA(msg, "An exception of type 0x%08lX has occurred", GetExceptionCode());
-		FatalAppExitA(0, msg);
+		WCHAR msg[256];
+		wsprintfW(msg, L"An exception of type 0x%08lX has occurred", GetExceptionCode());
+		FatalAppExitW(0, msg);
 	}
 	return result;
 }
@@ -1125,7 +1125,7 @@ HRESULT CSfxExtractEngine::Run(LPWSTR lpCmdLine)
 	if (GetModuleHandle(NULL) == m_hRsrcModule)
 	{
 		lpCmdLine = GetCommandLineW();
-		LoadQuotedString(lpCmdLine, m_sfxpath);
+		str = LoadQuotedString(lpCmdLine, m_sfxpath);
 	}
 	else
 	{
@@ -1142,7 +1142,6 @@ HRESULT CSfxExtractEngine::Run(LPWSTR lpCmdLine)
 	if (LPCWSTR lpwszValue = IsSfxSwitch(str, L"test"))
 	{
 		SKIP_WHITESPACES_W(lpwszValue);
-		m_sfxpath.Empty();
 		str = LoadQuotedString(lpwszValue, m_sfxpath);
 		m_hRsrcModule = LoadLibraryEx(m_sfxpath, NULL, LOAD_LIBRARY_AS_DATAFILE);
 		lpCmdLine = NULL;

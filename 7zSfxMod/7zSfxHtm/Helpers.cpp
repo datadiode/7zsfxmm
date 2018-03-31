@@ -106,28 +106,12 @@ BOOL DeleteFileOrDirectoryAlways( LPCWSTR path )
 
 LPCWSTR LoadQuotedString( LPCWSTR lpwszSrc, UString &result )
 {
-	if( *lpwszSrc == L'\"' )
-	{
-		lpwszSrc++;
-		while( *lpwszSrc != L'\0' && *lpwszSrc != L'\"' )
-		{
-			result += *lpwszSrc;
-			lpwszSrc++;
-		}
-		if( *lpwszSrc != L'\0' )
-			lpwszSrc++;
-	}
-	else
-	{
-		while( *lpwszSrc != L'\0' && ((unsigned)*lpwszSrc) > L' ' )
-		{
-			result += *lpwszSrc;
-			lpwszSrc++;
-		}
-	}
-
-	SKIP_WHITESPACES_W( lpwszSrc );
-	return lpwszSrc;
+	LPCWSTR lpwszAhead = PathGetArgsW(lpwszSrc);
+	result.SetFrom(lpwszSrc, static_cast<unsigned>(lpwszAhead - lpwszSrc));
+	result.TrimRight();
+	result.RemoveChar(L'\"');
+	SKIP_WHITESPACES_W(lpwszAhead);
+	return lpwszAhead;
 }
 
 LPCWSTR IsSubString( LPCWSTR lpwszString, LPCWSTR lpwszSubString )
