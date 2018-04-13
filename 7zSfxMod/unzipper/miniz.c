@@ -136,8 +136,12 @@
 
 #include <stdlib.h>
 
-#if !defined(MINIZ_NO_TIME) && !defined(MINIZ_NO_ARCHIVE_APIS)
+#ifndef MINIZ_NO_ARCHIVE_APIS
+#ifndef MINIZ_NO_TIME
 #include <time.h>
+#else
+#include <objbase.h>
+#endif
 #endif
 
 // Defines to completely disable specific portions of miniz.c:
@@ -475,6 +479,8 @@ typedef struct
   mz_uint16 m_method;
 #ifndef MINIZ_NO_TIME
   time_t m_time;
+#else
+  FILETIME m_time;
 #endif
   mz_uint32 m_crc32;
   mz_uint64 m_comp_size;
@@ -894,6 +900,8 @@ mz_uint tdefl_create_comp_flags_from_zip_params(int level, int window_bits, int 
 
 #ifndef MINIZ_HEADER_FILE_ONLY
 
+#pragma intrinsic(memcmp, strlen)
+
 typedef unsigned char mz_validate_uint16[sizeof(mz_uint16)==2 ? 1 : -1];
 typedef unsigned char mz_validate_uint32[sizeof(mz_uint32)==4 ? 1 : -1];
 typedef unsigned char mz_validate_uint64[sizeof(mz_uint64)==8 ? 1 : -1];
@@ -907,10 +915,14 @@ typedef unsigned char mz_validate_uint64[sizeof(mz_uint64)==8 ? 1 : -1];
   #define MZ_MALLOC(x) NULL
   #define MZ_FREE(x) (void)x, ((void)0)
   #define MZ_REALLOC(p, x) NULL
-#else
+#elif !defined(MINIZ_NO_TIME)
   #define MZ_MALLOC(x) malloc(x)
   #define MZ_FREE(x) free(x)
   #define MZ_REALLOC(p, x) realloc(p, x)
+#else
+  #define MZ_MALLOC(x) CoTaskMemAlloc(x)
+  #define MZ_FREE(x) CoTaskMemFree(x)
+  #define MZ_REALLOC(p, x) CoTaskMemRealloc(p, x)
 #endif
 
 #define MZ_MAX(a,b) (((a)>(b))?(a):(b))
@@ -3345,6 +3357,8 @@ mz_bool mz_zip_reader_file_stat(mz_zip_archive *pZip, mz_uint file_index, mz_zip
   pStat->m_method = MZ_READ_LE16(p + MZ_ZIP_CDH_METHOD_OFS);
 #ifndef MINIZ_NO_TIME
   pStat->m_time = mz_zip_dos_to_time_t(MZ_READ_LE16(p + MZ_ZIP_CDH_FILE_TIME_OFS), MZ_READ_LE16(p + MZ_ZIP_CDH_FILE_DATE_OFS));
+#else
+  CoDosDateTimeToFileTime(MZ_READ_LE16(p + MZ_ZIP_CDH_FILE_DATE_OFS), MZ_READ_LE16(p + MZ_ZIP_CDH_FILE_TIME_OFS), &pStat->m_time);
 #endif
   pStat->m_crc32 = MZ_READ_LE32(p + MZ_ZIP_CDH_CRC32_OFS);
   pStat->m_comp_size = MZ_READ_LE32(p + MZ_ZIP_CDH_COMPRESSED_SIZE_OFS);

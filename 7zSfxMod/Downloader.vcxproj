@@ -18,17 +18,49 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="downloader\dialog.c" />
+    <ClCompile Include="downloader\downslib.c" />
+    <ClCompile Include="downloader\findhta.cpp" />
+    <ClCompile Include="downloader\main.c" />
+    <ClCompile Include="downloader\sha256.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="downloader\common.h" />
+    <ClInclude Include="downloader\findhta.h" />
+    <ClInclude Include="downloader\sha256.h" />
+    <ClInclude Include="downloader\utilmisc.h" />
+    <ClInclude Include="downloader\dialog.h" />
+    <ClInclude Include="downloader\downslib.h" />
+    <ClInclude Include="downloader\resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="downloader\resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\.git\FETCH_HEAD">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
+    </CustomBuild>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}</ProjectGuid>
+    <ProjectGuid>{BAB346B4-00EC-454A-A98F-8F65D210831F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>HTDialog</ProjectName>
+    <RootNamespace>Downloader</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
@@ -36,7 +68,6 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
@@ -64,159 +95,117 @@
     <IntDir>..\Intermediate\Win$(PlatformArchitecture)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>false</LinkIncremental>
     <GenerateManifest>false</GenerateManifest>
     <OutDir>..\Output\Win$(PlatformArchitecture)\$(Configuration)\</OutDir>
     <IntDir>..\Intermediate\Win$(PlatformArchitecture)\$(ProjectName)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
     <GenerateManifest>false</GenerateManifest>
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>..\Output\Win$(PlatformArchitecture)\$(Configuration)\</OutDir>
     <IntDir>..\Intermediate\Win$(PlatformArchitecture)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
     <GenerateManifest>false</GenerateManifest>
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>..\Output\Win$(PlatformArchitecture)\$(Configuration)\</OutDir>
     <IntDir>..\Intermediate\Win$(PlatformArchitecture)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <WarningLevel>Level4</WarningLevel>
       <StringPooling>true</StringPooling>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>runtmchk.lib;shlwapi.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>runtmchk.lib;ntdll.lib;oleacc.lib;comctl32.lib;wininet.lib;shlwapi.lib;kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <AdditionalLibraryDirectories>$(WINDDKDIR)lib\crt\i386;$(WINDDKDIR)lib\win7\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <Midl>
-      <OutputDirectory>..\midl</OutputDirectory>
-      <TypeLibraryName>$(IntDir)..\$(ProjectName).tlb</TypeLibraryName>
-    </Midl>
+    <Manifest>
+      <InputResourceManifests>
+      </InputResourceManifests>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>false</MinimalRebuild>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <WarningLevel>Level4</WarningLevel>
       <StringPooling>true</StringPooling>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>runtmchk.lib;shlwapi.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>runtmchk.lib;ntdll.lib;oleacc.lib;comctl32.lib;wininet.lib;shlwapi.lib;kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <AdditionalLibraryDirectories>$(WINDDKDIR)lib\crt\amd64;$(WINDDKDIR)lib\win7\amd64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <Midl>
-      <OutputDirectory>..\midl</OutputDirectory>
-      <TypeLibraryName>$(IntDir)..\$(ProjectName).tlb</TypeLibraryName>
-      <TargetEnvironment>X64</TargetEnvironment>
-    </Midl>
-    <ResourceCompile>
-      <PreprocessorDefinitions>_WIN64;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ResourceCompile>
+    <Manifest>
+      <InputResourceManifests>
+      </InputResourceManifests>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MinSpace</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>false</MinimalRebuild>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>runtmchk.lib;shlwapi.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>runtmchk.lib;oleacc.lib;comctl32.lib;wininet.lib;shlwapi.lib;kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(WINDDKDIR)lib\crt\i386;$(WINDDKDIR)lib\win7\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <Midl>
-      <OutputDirectory>..\midl</OutputDirectory>
-      <TypeLibraryName>$(IntDir)..\$(ProjectName).tlb</TypeLibraryName>
-    </Midl>
+    <Manifest />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MinSpace</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>false</MinimalRebuild>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>runtmchk.lib;shlwapi.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>runtmchk.lib;oleacc.lib;comctl32.lib;wininet.lib;shlwapi.lib;kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(WINDDKDIR)lib\crt\amd64;$(WINDDKDIR)lib\win7\amd64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <Midl>
-      <OutputDirectory>..\midl</OutputDirectory>
-      <TypeLibraryName>$(IntDir)..\$(ProjectName).tlb</TypeLibraryName>
-      <TargetEnvironment>X64</TargetEnvironment>
-    </Midl>
-    <ResourceCompile>
-      <PreprocessorDefinitions>_WIN64;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ResourceCompile>
+    <Manifest />
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="htdialog\HTDialog.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="htdialog\HTDialog.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Midl Include="htdialog\HTDialog.idl" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\.git\FETCH_HEAD">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
-    </CustomBuild>
-    <None Include="htdialog\manifest.xml">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="htdialog\usage.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="common\ImageUtil.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -41,6 +41,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="3rdparty.props" />
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
@@ -97,18 +98,20 @@
       <OmitDefaultLibName>false</OmitDefaultLibName>
       <StringPooling>true</StringPooling>
       <WarningLevel>Level4</WarningLevel>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>runtmchk.lib;noarg.obj;noenv.obj;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
+      <AdditionalDependencies>libcmt.lib;noarg.obj;noenv.obj;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
       <OptimizeReferences>
       </OptimizeReferences>
       <EnableCOMDATFolding>
       </EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>$(WINDDKDIR)lib\crt\i386;$(WINDDKDIR)lib\win7\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
     <Manifest />
     <PostBuildEvent>
@@ -132,20 +135,21 @@
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_WIN64;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>runtmchk.lib;noarg.obj;noenv.obj;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
+      <AdditionalDependencies>libcmt.lib;noarg.obj;noenv.obj;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
       <OptimizeReferences>
       </OptimizeReferences>
       <EnableCOMDATFolding>
       </EnableCOMDATFolding>
-      <TargetMachine>MachineX64</TargetMachine>
-      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>$(WINDDKDIR)lib\crt\amd64;$(WINDDKDIR)lib\win7\amd64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>7zSfxHtm\PostBuild.bat "$(IntDir)" "$(OutDir)" $(PlatformArchitecture) $(TargetExt)</Command>
@@ -175,11 +179,12 @@
       <WarningLevel>Level4</WarningLevel>
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <ResourceCompile />
     <Link>
       <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>runtmchk.lib;noarg.obj;noenv.obj;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
+      <AdditionalDependencies>libcmt.lib;noarg.obj;noenv.obj;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
@@ -211,16 +216,16 @@
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <OmitDefaultLibName>true</OmitDefaultLibName>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_WIN64;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/STUB:lib/small.stub %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>runtmchk.lib;noarg.obj;noenv.obj;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
+      <AdditionalDependencies>libcmt.lib;noarg.obj;noenv.obj;shlwapi.lib;comctl32.lib;kernel32.lib;user32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib</AdditionalDependencies>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <TargetMachine>MachineX64</TargetMachine>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
     <Manifest />
@@ -752,16 +757,6 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">7zSfxHtm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">7zSfxHtm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="lib\crt\amd64\msvcrt.lib">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </Library>
-    <Library Include="lib\crt\i386\msvcrt.lib">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </Library>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="..\7-Zip\Asm\x86\7zCrcOpt.asm" />

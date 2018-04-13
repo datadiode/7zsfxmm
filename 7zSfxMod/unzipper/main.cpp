@@ -1,14 +1,18 @@
-#include <malloc.h>
 #include <shlwapi.h>
+#include <malloc.h>
 #include <wininet.h>
 #include <process.h>
 #include "../../midl/FETCH_HEAD.h"
 
-// https://www.rpi.edu/dept/cis/software/g77-mingw32/include/
+// Substitute the "exceptionally unsafe" lstr* functions
+#pragma intrinsic(wcslen, wcscpy)
+#define lstrlenW (int)wcslen
+#define lstrcpyW wcscpy
+#define lstrcmpiW StrCmpIW
 
 #include "miniz.h"
 
-static char const apptitle[] = "Unzipper v1.00";
+static char const apptitle[] = "Unzipper v1.01";
 
 static char const usage[] =
 	"Usage:\n"
@@ -27,7 +31,7 @@ static size_t file_read_func(void *pOpaque, mz_uint64 file_ofs, void *pBuf, size
 	DWORD dw = SetFilePointer(hFile, li.LowPart, &li.HighPart, FILE_BEGIN);
 	if (dw == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
 		return 0;
-	if (!ReadFile(hFile, pBuf, n, &dw, NULL))
+	if (!ReadFile(hFile, pBuf, static_cast<DWORD>(n), &dw, NULL))
 		return 0;
 	return dw;
 }
@@ -40,7 +44,7 @@ static size_t file_write_func(void *pOpaque, mz_uint64 file_ofs, const void *pBu
 	DWORD dw = SetFilePointer(hFile, li.LowPart, &li.HighPart, FILE_BEGIN);
 	if (dw == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
 		return 0;
-	if (!WriteFile(hFile, pBuf, n, &dw, NULL))
+	if (!WriteFile(hFile, pBuf, static_cast<DWORD>(n), &dw, NULL))
 		return 0;
 	return dw;
 }
@@ -257,14 +261,15 @@ static int Run(LPWSTR cmdline)
 				}
 				else
 				{
-					ULONGLONG ft = UInt32x32To64(file_stat.m_time, 10000000) + 116444736000000000;
 					if (!mz_zip_reader_extract_to_callback(&zip_archive, i, file_write_func, hFile, 0))
 					{
 						n = -5;
 						SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
 						SetEndOfFile(hFile);
 					}
-					SetFileTime(hFile, NULL, NULL, reinterpret_cast<FILETIME *>(&ft));
+					FILETIME ft = { 0, 0 };
+					LocalFileTimeToFileTime(&file_stat.m_time, &ft);
+					SetFileTime(hFile, NULL, NULL, &ft);
 					CloseHandle(hFile);
 				}
 			}

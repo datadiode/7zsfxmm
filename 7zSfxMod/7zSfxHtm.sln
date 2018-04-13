@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Unzipper", "Unzipper.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HTDialog", "HTDialog.vcxproj", "{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Downloader", "Downloader.vcxproj", "{BAB346B4-00EC-454A-A98F-8F65D210831F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -29,12 +31,12 @@ Global
 		{60FC2AAC-F2C7-48E6-A78D-ACDC6988B8C4}.Release|x64.Build.0 = Release|x64
 		{179F6952-30D1-40A3-89A4-12F74838489B}.Debug|Win32.ActiveCfg = Debug|Win32
 		{179F6952-30D1-40A3-89A4-12F74838489B}.Debug|Win32.Build.0 = Debug|Win32
-		{179F6952-30D1-40A3-89A4-12F74838489B}.Debug|x64.ActiveCfg = Debug|Win32
-		{179F6952-30D1-40A3-89A4-12F74838489B}.Debug|x64.Build.0 = Debug|Win32
+		{179F6952-30D1-40A3-89A4-12F74838489B}.Debug|x64.ActiveCfg = Debug|x64
+		{179F6952-30D1-40A3-89A4-12F74838489B}.Debug|x64.Build.0 = Debug|x64
 		{179F6952-30D1-40A3-89A4-12F74838489B}.Release|Win32.ActiveCfg = Release|Win32
 		{179F6952-30D1-40A3-89A4-12F74838489B}.Release|Win32.Build.0 = Release|Win32
-		{179F6952-30D1-40A3-89A4-12F74838489B}.Release|x64.ActiveCfg = Release|Win32
-		{179F6952-30D1-40A3-89A4-12F74838489B}.Release|x64.Build.0 = Release|Win32
+		{179F6952-30D1-40A3-89A4-12F74838489B}.Release|x64.ActiveCfg = Release|x64
+		{179F6952-30D1-40A3-89A4-12F74838489B}.Release|x64.Build.0 = Release|x64
 		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Debug|Win32.ActiveCfg = Debug|Win32
 		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Debug|Win32.Build.0 = Debug|Win32
 		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Debug|x64.ActiveCfg = Debug|x64
@@ -43,6 +45,13 @@ Global
 		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Release|Win32.Build.0 = Release|Win32
 		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Release|x64.ActiveCfg = Release|x64
 		{9CD7BCF8-07A7-4051-B34F-6C13AE2D11CA}.Release|x64.Build.0 = Release|x64
+		{BAB346B4-00EC-454A-A98F-8F65D210831F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BAB346B4-00EC-454A-A98F-8F65D210831F}.Debug|Win32.Build.0 = Debug|Win32
+		{BAB346B4-00EC-454A-A98F-8F65D210831F}.Debug|x64.ActiveCfg = Debug|x64
+		{BAB346B4-00EC-454A-A98F-8F65D210831F}.Release|Win32.ActiveCfg = Release|Win32
+		{BAB346B4-00EC-454A-A98F-8F65D210831F}.Release|Win32.Build.0 = Release|Win32
+		{BAB346B4-00EC-454A-A98F-8F65D210831F}.Release|x64.ActiveCfg = Release|x64
+		{BAB346B4-00EC-454A-A98F-8F65D210831F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

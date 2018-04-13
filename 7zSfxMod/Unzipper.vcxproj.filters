@@ -21,11 +21,9 @@
     <ClCompile Include="unzipper\miniz.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="lib\crt\i386\msvcrt.lib">
+    <ClCompile Include="common\intrin.cpp">
       <Filter>Source Files</Filter>
-    </Library>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="unzipper\miniz.h">

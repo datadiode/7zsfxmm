@@ -5,9 +5,17 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -17,26 +25,45 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v90</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="3rdparty.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <GenerateManifest>false</GenerateManifest>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\Output\Win$(PlatformArchitecture)\$(Configuration)\</OutDir>
+    <IntDir>..\Intermediate\Win$(PlatformArchitecture)\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <GenerateManifest>false</GenerateManifest>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\Output\Win$(PlatformArchitecture)\$(Configuration)\</OutDir>
@@ -48,26 +75,52 @@
     <OutDir>..\Output\Win$(PlatformArchitecture)\$(Configuration)\</OutDir>
     <IntDir>..\Intermediate\Win$(PlatformArchitecture)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+    <OutDir>..\Output\Win$(PlatformArchitecture)\$(Configuration)\</OutDir>
+    <IntDir>..\Intermediate\Win$(PlatformArchitecture)\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USE_32BIT_TIME_T;MINIZ_NO_STDIO;MINIZ_NO_ARCHIVE_WRITING_APIS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;MINIZ_NO_TIME;MINIZ_NO_STDIO;MINIZ_NO_ARCHIVE_WRITING_APIS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
-      <AdditionalIncludeDirectories>g77-mingw32/include</AdditionalIncludeDirectories>
-      <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>MyStartup</EntryPointSymbol>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <FixedBaseAddress>false</FixedBaseAddress>
+      <AdditionalLibraryDirectories>$(WINDDKDIR)lib\crt\i386;$(WINDDKDIR)lib\win7\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;MINIZ_NO_TIME;MINIZ_NO_STDIO;MINIZ_NO_ARCHIVE_WRITING_APIS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>false</ExceptionHandling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>MyStartup</EntryPointSymbol>
+      <AdditionalLibraryDirectories>$(WINDDKDIR)lib\crt\amd64;$(WINDDKDIR)lib\win7\amd64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -77,35 +130,62 @@
       </PrecompiledHeader>
       <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USE_32BIT_TIME_T;MINIZ_NO_STDIO;MINIZ_NO_ARCHIVE_WRITING_APIS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;MINIZ_NO_TIME;MINIZ_NO_STDIO;MINIZ_NO_ARCHIVE_WRITING_APIS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
-      <AdditionalIncludeDirectories>g77-mingw32/include</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>RunTmChk.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>MyStartup</EntryPointSymbol>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <FixedBaseAddress>false</FixedBaseAddress>
+      <AdditionalLibraryDirectories>$(WINDDKDIR)lib\crt\i386;$(WINDDKDIR)lib\win7\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MinSpace</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;MINIZ_NO_TIME;MINIZ_NO_STDIO;MINIZ_NO_ARCHIVE_WRITING_APIS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>false</ExceptionHandling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>MyStartup</EntryPointSymbol>
+      <AdditionalLibraryDirectories>$(WINDDKDIR)lib\crt\amd64;$(WINDDKDIR)lib\win7\amd64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="common\intrin.cpp" />
     <ClCompile Include="unzipper\main.cpp" />
     <ClCompile Include="unzipper\miniz.c">
-      <UndefinePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_MSC_VER</UndefinePreprocessorDefinitions>
-      <UndefinePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">_MSC_VER</UndefinePreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </UndefinePreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </UndefinePreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </UndefinePreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </UndefinePreprocessorDefinitions>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="lib\crt\i386\msvcrt.lib" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="unzipper\miniz.h" />
@@ -114,9 +194,13 @@
     <CustomBuild Include="..\.git\FETCH_HEAD">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)%(Filename).bat" "%(FullPath)" &gt; $(SolutionDir)..\midl\%(Filename).h</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\midl\%(Filename).h</Outputs>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

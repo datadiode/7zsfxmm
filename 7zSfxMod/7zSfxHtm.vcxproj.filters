@@ -16,12 +16,6 @@
     <Filter Include="7z">
       <UniqueIdentifier>{51237348-d21e-45d8-92ab-e1a090e7e355}</UniqueIdentifier>
     </Filter>
-    <Filter Include="32-bit">
-      <UniqueIdentifier>{8015d7e4-379a-426c-8fbe-7edbe295ff15}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="64-bit">
-      <UniqueIdentifier>{c9342da0-00c8-42ab-a29a-89a33359157d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="7z\Methods">
       <UniqueIdentifier>{0e480c91-aa89-4eef-87b4-406bd64ea229}</UniqueIdentifier>
     </Filter>
@@ -369,14 +363,6 @@
     <ResourceCompile Include="7zSfxHtm\7zSfxHtm.rc">
       <Filter>Source Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="lib\crt\i386\msvcrt.lib">
-      <Filter>32-bit</Filter>
-    </Library>
-    <Library Include="lib\crt\amd64\msvcrt.lib">
-      <Filter>64-bit</Filter>
-    </Library>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="..\7-Zip\Asm\x86\7zCrcOpt.asm">

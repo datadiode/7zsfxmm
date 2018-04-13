@@ -2,7 +2,7 @@
 /* File:        main.cpp                                                     */
 /* Created:     Fri, 29 Jul 2005 03:23:00 GMT                                */
 /*              by Oleg N. Scherbakov, mailto:oleg@7zsfx.info                */
-/* Last update: Sat, 10 Feb 2018 by https://github.com/datadiode             */
+/* Last update: Fri, 13 Apr 2018 by https://github.com/datadiode             */
 /*---------------------------------------------------------------------------*/
 /* Revision:    3901                                                         */
 /* Updated:     Sat, 02 Apr 2016 06:31:33 GMT                                */
@@ -39,6 +39,7 @@
 #include "../C/Lzma86.h"
 #include "../common/VersionData.h"
 #include "../common/vs_version.h"
+#include "../../midl/FETCH_HEAD.h"
 
 using NWindows::NFile::NIO::CInFile;
 using NWindows::NFile::NIO::COutFile;
@@ -1404,3 +1405,17 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR , int)
 	}
 	return ret;
 }
+
+#ifdef _WIN64
+#	define __cdecl(name) #name
+#	define __stdcall(name, bytes) #name
+#	pragma comment(linker, "/SUBSYSTEM:WINDOWS,5.2") // Windows XP 64-Bit
+#else
+#	define __cdecl(name) "_" #name
+#	define __stdcall(name, bytes) "_" #name "@" #bytes
+#	pragma comment(linker, "/SUBSYSTEM:WINDOWS,5.0") // Windows 2000
+#endif
+
+// Create an otherwise irrelevant EAT entry to identify the commit version
+extern "C" int const build_git_rev = BUILD_GIT_REV;
+#pragma comment(linker, "/EXPORT:" BUILD_GIT_BRANCH BUILD_GIT_SHA "=" __cdecl(build_git_rev))
