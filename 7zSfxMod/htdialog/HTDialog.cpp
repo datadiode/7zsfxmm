@@ -22,25 +22,6 @@ typedef bool Assert;
 
 #define SafeInvoke(p) if (p) p
 
-static void SetDpiAwareness()
-{
-	struct SHCORE {
-		enum ProcessDpiAwareness {
-			ProcessDpiUnaware,
-			ProcessSystemDpiAware,
-			ProcessPerMonitorDpiAware,
-		};
-		DllHandle DLL;
-		DllImport<HRESULT (WINAPI *)(ProcessDpiAwareness)> SetProcessDpiAwareness;
-	} const SHCORE = {
-		DllHandle::Load(L"SHCORE"),
-		SHCORE.DLL("SetProcessDpiAwareness"),
-	};
-
-	if (*SHCORE.SetProcessDpiAwareness)
-		(*SHCORE.SetProcessDpiAwareness)(SHCORE.ProcessSystemDpiAware);
-}
-
 static HWND CreateHiddenOwner()
 {
 	HWND hwnd = CreateWindowW(
@@ -228,7 +209,6 @@ public:
 		, m_uCustomIcons(0)
 	{
 		SecureZeroMemory(&m_icon, sizeof m_icon);
-		SetDpiAwareness();
 	}
 	HRESULT Modal(DWORD flags)
 	{
