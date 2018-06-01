@@ -4,15 +4,17 @@
 	MIT License: http://www.opensource.org/licenses/mit-license.php
 */
 #include <intrin.h>
+#include <shlwapi.h>
 
 #define InterlockedCompareExchange64 _InterlockedCompareExchange64 /* for XP */
 
 DECLSPEC_IMPORT ULONG DbgPrint(PCSTR, ...); /* from ntdll.lib */
 
 /* Substitute the "exceptionally unsafe" lstr* functions */
-#pragma intrinsic(wcslen, wcscpy)
+#pragma intrinsic(wcslen)
 #define lstrlenW (int)wcslen
-#define lstrcpyW wcscpy
+#define lstrcpyW StrCpyW
+#define lstrcpynW StrCpyNW
 #define lstrcmpiW StrCmpIW
 
 #ifdef _UNICODE

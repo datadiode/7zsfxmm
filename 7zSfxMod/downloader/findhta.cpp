@@ -1,5 +1,6 @@
 #include <oleacc.h>
 #include <mshtml.h>
+#include "utilmisc.h"
 
 EXTERN_C HWND FindHTA(LPCWSTR name)
 {

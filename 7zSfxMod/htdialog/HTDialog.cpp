@@ -20,6 +20,13 @@ typedef bool Assert;
 #include "BasePtr.h"
 #include "AutoPtr.h"
 
+// Substitute the "exceptionally unsafe" lstr* functions
+#pragma intrinsic(wcslen)
+#define lstrlenW (int)wcslen
+#define lstrcpynW StrCpyNW
+#define lstrcmpW StrCmpW
+#define lstrcmpiW StrCmpIW
+
 #define SafeInvoke(p) if (p) p
 
 static HWND CreateHiddenOwner()

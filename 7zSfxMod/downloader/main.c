@@ -5,7 +5,6 @@
 #include "resource.h"
 
 #include <wininet.h>
-#include <shlwapi.h>
 #include <process.h>
 #include "../../midl/FETCH_HEAD.h"
 
