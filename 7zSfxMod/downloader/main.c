@@ -217,4 +217,4 @@ int WINAPI WinMainCRTStartup()
 
 // Create an otherwise irrelevant EAT entry to identify the commit version
 int const build_git_rev = BUILD_GIT_REV;
-#pragma comment(linker, "/EXPORT:" BUILD_GIT_BRANCH BUILD_GIT_SHA "=" __cdecl(build_git_rev))
+#pragma comment(linker, "/EXPORT:" BUILD_GIT_BRANCH BUILD_GIT_SHA ":" __TIME__ "=" __cdecl(build_git_rev))
