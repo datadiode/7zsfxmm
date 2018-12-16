@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="downloader\dialog.c" />
     <ClCompile Include="downloader\downslib.c" />
-    <ClCompile Include="downloader\findhta.cpp" />
     <ClCompile Include="downloader\main.c" />
     <ClCompile Include="downloader\sha256.c" />
   </ItemGroup>

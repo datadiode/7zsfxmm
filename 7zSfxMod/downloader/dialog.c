@@ -70,6 +70,8 @@ INT_PTR CALLBACK DownloadDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
                     pParam->x = (rect.right + rect.left - pParam->cx) / 2;
                     pParam->y = (rect.bottom + rect.top - pParam->cy) / 2;
                     pParam->flags &= ~SWP_NOMOVE;
+                    /* Don't come back with an outdated phantom image */
+                    InvalidateRect(parent, NULL, FALSE);
                     enable = FALSE;
                 }
                 EnableWindow(parent, enable);

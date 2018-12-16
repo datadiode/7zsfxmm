@@ -11,22 +11,21 @@
 #include "downslib.h"
 #include "utilmisc.h"
 #include "dialog.h"
-#include "findhta.h"
 
-static TCHAR const apptitle[] = TEXT("Downloader v1.3");
+static TCHAR const apptitle[] = TEXT("Downloader v1.4");
 
 static char const usage[] =
     " [options] <url> <filename>\n"
     "\n"
     "Available options:\n"
     "/bubble - enables request info bubble\n"
-    "/hta:<name> - establishes hta as modal owner\n"
     "/ignore - allows user to bypass security\n"
     "/ignore-expired\n"
     "/ignore-wrong-host\n"
     "/ignore-revoked\n"
     "/ignore-untrusted-root\n"
     "/ignore-wrong-usage\n"
+    "/owner:<handle to owner window>\n"
     "/passive - no user interaction\n"
     "/passive:<exit code> - conditionally passive\n"
     "/proxy-name:<list of proxy servers>\n"
@@ -36,17 +35,6 @@ static char const usage[] =
     "/timeout:<milliseconds>\n"
     "/topmost - keeps window on top of z-order\n"
     "/useragent:<name>\n";
-
-static HWND FindHTAWrapper(LPCWSTR name)
-{
-    HWND hwnd = NULL;
-    if (SUCCEEDED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
-    {
-        hwnd = FindHTA(name);
-        CoUninitialize();
-    }
-    return hwnd;
-}
 
 static LPCTSTR EatPrefixAndUnquote(LPTSTR text, LPCTSTR prefix)
 {
@@ -88,8 +76,12 @@ static DWORD Run(LPTSTR p)
             PathUnquoteSpaces(argv[argc++] = p);
         else if (lstrcmpi(t, TEXT("topmost")) == 0)
             top = (HWND)(INT_PTR)-1; /* HWND_TOPMOST triggers warning C4306 */
-        else if ((r = EatPrefixAndUnquote(t, TEXT("hta:"))) != NULL)
-            owner = FindHTAWrapper(r);
+        else if ((r = EatPrefixAndUnquote(t, TEXT("owner:"))) != NULL)
+#ifdef _WIN64
+			StrToInt64Ex(r, STIF_SUPPORT_HEX, (LONGLONG *)&owner);
+#else
+			StrToIntEx(r, STIF_SUPPORT_HEX, (LPINT)&owner);
+#endif
         else if (lstrcmpi(t, TEXT("bubble")) == 0)
             tp.hflags |= HTTP_QUERY_RAW_HEADERS_CRLF | HTTP_QUERY_FLAG_REQUEST_HEADERS;
         else if (lstrcmpi(t, TEXT("secure")) == 0)
@@ -217,4 +209,4 @@ int WINAPI WinMainCRTStartup()
 
 // Create an otherwise irrelevant EAT entry to identify the commit version
 int const build_git_rev = BUILD_GIT_REV;
-#pragma comment(linker, "/EXPORT:" BUILD_GIT_BRANCH BUILD_GIT_SHA ":" __TIME__ "=" __cdecl(build_git_rev))
+#pragma comment(linker, "/EXPORT:\"" BUILD_GIT_BRANCH BUILD_GIT_SHA " " __DATE__ " " __TIME__ "\"=" __cdecl(build_git_rev))

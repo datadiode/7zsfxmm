@@ -27,9 +27,6 @@
     <ClCompile Include="downloader\sha256.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="downloader\findhta.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="downloader\dialog.h">
